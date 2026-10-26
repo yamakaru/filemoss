@@ -65,4 +65,16 @@ t('fit',DK.fitSize(4000,3000,1200,0,true),[1200,900]);t('fit both',DK.fitSize(40
 // signature escaping
 let sg=DK.signature({name:'<b>Eve</b>',email:'e@x.com',website:'x.com',phone:'(555) 123-4567',color:'red;x'});
 t('sig esc',sg.includes('&lt;b&gt;Eve'),true);t('sig color fallback',sg.includes('#1d4ed8'),true);t('sig tel',sg.includes('href="tel:5551234567"'),true);t('sig web',sg.includes('href="https://x.com"'),true);
+// delete pages / password generator
+t('pagesExcept',DK.pagesExcept([[2],[5,6]],7),[1,3,4,7]);t('pagesExcept none',DK.pagesExcept([[9]],3),[1,2,3]);
+t('pagesExcept all throws',(()=>{try{DK.pagesExcept([[1,2,3]],3);return 'no'}catch(e){return 'threw'}})(),'threw');
+{let ok1=true,ok2=true,ok3=true,seen=new Set();for(let i=0;i<300;i++){const r=DK.password({length:12,upper:true,lower:true,digits:true,symbols:true});const p=r.password;seen.add(p);
+ if(p.length!==12||!/[A-Z]/.test(p)||!/[a-z]/.test(p)||!/[0-9]/.test(p)||!/[^A-Za-z0-9]/.test(p))ok1=false;
+ const q=DK.password({length:20,lower:true,digits:true,noSimilar:true}).password;if(/[Il1O0oA-Z]/.test(q)||/[^a-z0-9]/.test(q)||q.length!==20)ok2=false;}
+ t('pw has every selected type',ok1,true);t('pw noSimilar & only chosen sets',ok2,true);t('pw unique',seen.size,300);}
+t('pw bits 16 all',DK.password({length:16,upper:true,lower:true,digits:true,symbols:true}).bits,Math.round(16*Math.log2(26+26+10+25)));
+t('pw length clamp',DK.password({length:2,digits:true}).password.length,4);
+t('pw none throws',(()=>{try{DK.password({length:8});return 'no'}catch(e){return 'threw'}})(),'threw');
+t('pw strength',[DK.pwStrength(30),DK.pwStrength(50),DK.pwStrength(70),DK.pwStrength(100)],['Weak','Fair','Strong','Very strong']);
+{const cnt=new Array(10).fill(0);for(let i=0;i<20000;i++)cnt[DK.randInt(10)]++;t('randInt uniform-ish',cnt.every(x=>x>1700&&x<2300),true);}
 console.log(fail?`${fail}/${n} core tests FAILED`:`core: all ${n} tests passed`);process.exit(fail?1:0);

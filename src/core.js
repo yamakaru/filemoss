@@ -113,4 +113,12 @@ DK.signature=function(o){var e=DK.esc,c=/^#[0-9a-f]{3,8}$/i.test(o.color||'')?o.
  '<td style="border-left:3px solid '+c+';padding-left:12px;vertical-align:top"><div style="font-size:16px;font-weight:bold;color:#111111">'+e(o.name||'')+'</div>'+
  (title?'<div style="color:#555555">'+title+'</div>':'')+(L.length?'<div style="margin-top:6px">'+L.join(' &nbsp;|&nbsp; ')+'</div>':'')+
  (o.address?'<div style="color:#777777">'+e(o.address)+'</div>':'')+'</td></tr></table>'};
+/* ---------- delete pages / password ---------- */
+DK.pagesExcept=function(groups,n){var r={},k=[];groups.forEach(function(g){g.forEach(function(x){r[x]=1})});for(var i=1;i<=n;i++)if(!r[i])k.push(i);if(!k.length)throw new Error('You cannot delete every page — keep at least one');return k};
+DK.PW_SETS={lower:'abcdefghijklmnopqrstuvwxyz',upper:'ABCDEFGHIJKLMNOPQRSTUVWXYZ',digits:'0123456789',symbols:'!@#$%^&*()-_=+[]{};:,.?/~'};
+DK.randInt=function(max){var c=(typeof crypto!=='undefined'&&crypto.getRandomValues)?crypto:require('crypto').webcrypto,lim=Math.floor(4294967296/max)*max,a=new Uint32Array(1);do{c.getRandomValues(a)}while(a[0]>=lim);return a[0]%max};
+DK.password=function(o){var len=Math.max(4,Math.min(128,Math.floor(+o.length||16))),sets=[];['lower','upper','digits','symbols'].forEach(function(k){if(o[k]){var s=DK.PW_SETS[k];if(o.noSimilar)s=s.replace(/[Il1O0o]/g,'');sets.push(s)}});
+ if(!sets.length)throw new Error('Select at least one character type');var all=sets.join(''),ch=sets.map(function(s){return s[DK.randInt(s.length)]});while(ch.length<len)ch.push(all[DK.randInt(all.length)]);
+ for(var i=ch.length-1;i>0;i--){var j=DK.randInt(i+1),t=ch[i];ch[i]=ch[j];ch[j]=t}return {password:ch.join(''),pool:all.length,bits:Math.round(len*Math.log2(all.length))}};
+DK.pwStrength=function(bits){return bits<40?'Weak':bits<60?'Fair':bits<80?'Strong':'Very strong'};
 return DK;});
