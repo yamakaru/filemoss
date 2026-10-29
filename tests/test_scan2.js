@@ -3,7 +3,7 @@
 const {chromium,devices}=require('playwright-core'),http=require('http'),fs=require('fs'),path=require('path');
 const DIST=path.join(__dirname,'../dist'),S=path.join(__dirname,'samples');const Q=JSON.parse(fs.readFileSync(path.join(S,'scans.json')));
 const MIME={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.wasm':'application/wasm'};
-const srv=http.createServer((q,r)=>{let p=decodeURIComponent(q.url.split('?')[0]);if(p.endsWith('/'))p+='index.html';const f=path.join(DIST,p);if(!fs.existsSync(f)){r.writeHead(404);return r.end()}r.writeHead(200,{'Content-Type':MIME[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(r)});
+const EVS=[];const srv=http.createServer((q,r)=>{if(q.url==='/api/e'){let b='';q.on('data',c=>b+=c);q.on('end',()=>{try{EVS.push(JSON.parse(b))}catch(e){}r.writeHead(204);r.end()});return}let p=decodeURIComponent(q.url.split('?')[0]);if(p.endsWith('/'))p+='index.html';const f=path.join(DIST,p);if(!fs.existsSync(f)){r.writeHead(404);return r.end()}r.writeHead(200,{'Content-Type':MIME[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(r)});
 let n=0,fail=0;const ok=(name,c,info)=>{n++;if(!c)fail++;console.log(c?'ok  ':'FAIL',name,info===undefined?'':JSON.stringify(info))};
 (async()=>{await new Promise(r=>srv.listen(8768,r));const B=process.env.BASE||'http://localhost:8768';
 const br=await chromium.launch({executablePath:'/usr/bin/google-chrome',args:['--no-sandbox']});const ctx=await br.newContext({...devices['Pixel 7']});

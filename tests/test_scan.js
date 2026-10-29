@@ -2,7 +2,7 @@
 const {chromium,devices}=require('playwright-core'),http=require('http'),fs=require('fs'),path=require('path'),{PDFDocument}=require('pdf-lib');
 const DIST=path.join(__dirname,'../dist'),S=path.join(__dirname,'samples'),OUT=path.join(__dirname,'out');fs.mkdirSync(OUT,{recursive:true});
 const MIME={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.wasm':'application/wasm'};
-const srv=http.createServer((q,r)=>{let p=decodeURIComponent(q.url.split('?')[0]);if(p.endsWith('/'))p+='index.html';const f=path.join(DIST,p);if(!fs.existsSync(f)){r.writeHead(404);return r.end()}r.writeHead(200,{'Content-Type':MIME[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(r)});
+const EVS=[];const srv=http.createServer((q,r)=>{if(q.url==='/api/e'){let b='';q.on('data',c=>b+=c);q.on('end',()=>{try{EVS.push(JSON.parse(b))}catch(e){}r.writeHead(204);r.end()});return}let p=decodeURIComponent(q.url.split('?')[0]);if(p.endsWith('/'))p+='index.html';const f=path.join(DIST,p);if(!fs.existsSync(f)){r.writeHead(404);return r.end()}r.writeHead(200,{'Content-Type':MIME[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(r)});
 let n=0,fail=0;const ok=(name,c,info)=>{n++;if(!c){fail++;console.log('FAIL',name,info===undefined?'':JSON.stringify(info))}else console.log('ok  ',name,info===undefined?'':JSON.stringify(info))};
 const Q=JSON.parse(fs.readFileSync(path.join(S,'scans.json')));
 (async()=>{await new Promise(r=>srv.listen(8767,r));const B=process.env.BASE||'http://localhost:8767';

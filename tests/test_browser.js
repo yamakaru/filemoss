@@ -4,7 +4,7 @@ const {chromium}=require('playwright-core'),http=require('http'),fs=require('fs'
 const {PDFDocument}=require('pdf-lib'),XLSX=require('xlsx'),jsQR=require('jsqr');
 const DIST=path.join(__dirname,'../dist'),S=path.join(__dirname,'samples'),OUT=path.join(__dirname,'out');fs.mkdirSync(OUT,{recursive:true});
 const MIME={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.svg':'image/svg+xml','.txt':'text/plain','.xml':'application/xml'};
-const srv=http.createServer((q,r)=>{let p=decodeURIComponent(q.url.split('?')[0]);if(p.endsWith('/'))p+='index.html';const f=path.join(DIST,p);if(!fs.existsSync(f)){r.writeHead(404);return r.end()}r.writeHead(200,{'Content-Type':MIME[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(r)});
+const EVS=[];const srv=http.createServer((q,r)=>{if(q.url==='/api/e'){let b='';q.on('data',c=>b+=c);q.on('end',()=>{try{EVS.push(JSON.parse(b))}catch(e){}r.writeHead(204);r.end()});return}let p=decodeURIComponent(q.url.split('?')[0]);if(p.endsWith('/'))p+='index.html';const f=path.join(DIST,p);if(!fs.existsSync(f)){r.writeHead(404);return r.end()}r.writeHead(200,{'Content-Type':MIME[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(r)});
 const LOC=!!process.env.LP;let n=0,fail=0;const ok=(name,c,info)=>{n++;if(!c){fail++;console.log('FAIL',name,info===undefined?'':info)}else console.log('ok  ',name)};
 const magic=(b,kind)=>({jpg:b[0]==0xFF&&b[1]==0xD8,png:b.slice(1,4).toString()=='PNG',webp:b.slice(0,4).toString()=='RIFF'&&b.slice(8,12).toString()=='WEBP',pdf:b.slice(0,4).toString()=='%PDF',zip:b.slice(0,2).toString()=='PK'})[kind];
 function dims(b){if(b[1]==0x50)return [b.readUInt32BE(16),b.readUInt32BE(20)];let i=2;while(i<b.length){if(b[i]!=0xFF)return null;const m=b[i+1],L=b.readUInt16BE(i+2);if(m>=0xC0&&m<=0xC3)return [b.readUInt16BE(i+7),b.readUInt16BE(i+5)];i+=2+L}return null}
@@ -71,4 +71,5 @@ async function qrcheck(setup,exp,label){const p=await open('qr-code-generator');
 await qrcheck(async p=>{},'https://example.com','URL');
 await qrcheck(async p=>{await p.selectOption('#ty','wifi');await p.fill('#ss','Office;5G');await p.fill('#pw','pa:ss')},'WIFI:T:WPA;S:Office\\;5G;P:pa\\:ss;;','Wi-Fi with escaping');
 await qrcheck(async p=>{await p.selectOption('#ty','text');await p.fill('#tx','Xin chào – café ✓')},'Xin chào – café ✓','UTF-8 text');
+{const A=new Set(EVS.map(e=>e.a)),bad=EVS.filter(e=>!/^[a-z0-9-]+$/.test(e.t)||Object.keys(e).some(k=>!['t','a','l','x'].includes(k)));n++;if(!(A.has('upload')&&A.has('process_done')&&A.has('download'))||bad.length){fail++;console.log('FAIL usage events',[...A],bad.slice(0,3))}else console.log('ok   usage events: '+EVS.length+' beacons, actions '+[...A].sort().join(','))}
 await br.close();srv.close();console.log(fail?`browser: ${fail}/${n} FAILED`:`browser: all ${n} tests passed`);process.exit(fail?1:0)})().catch(e=>{console.error(e);process.exit(1)});
