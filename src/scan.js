@@ -110,5 +110,5 @@ S.clone=function(cv){var o=document.createElement('canvas');o.width=cv.width;o.h
 S.OCRL={en:'eng',vi:'vie',es:'spa',pt:'por',fr:'fra',de:'deu',it:'ita',id:'ind',ja:'jpn'};
 S.ocrDefault=function(){var l=(document.documentElement.lang||'en').slice(0,2).toLowerCase();return S.OCRL[l]||'eng'};
 var workers={};S.ocrWorker=function(lang){lang=lang||S.ocrDefault();if(workers[lang])return workers[lang];var w=workers[lang]=UI.loadScript('/assets/tess/tesseract.min.js').then(function(){return Tesseract.createWorker(lang,1,{workerPath:'/assets/tess/worker.min.js',corePath:'/assets/tess/',langPath:'/assets/tess/lang',gzip:true,logger:function(m){S._onp&&S._onp(m)}})});w.catch(function(){delete workers[lang]});return w};
-S.ocr=function(img,onProgress,lang){S._onp=onProgress;return S.ocrWorker(lang).then(function(w){return w.recognize(img)}).then(function(r){return r.data})};
+S.ocr=function(img,onProgress,lang){S._onp=onProgress;return S.ocrWorker(lang).then(function(w){return w.recognize(img)}).then(function(r){var d=r.data;if(d&&typeof d.text=='string'&&typeof DK!='undefined'&&DK.ocrClean)d.text=DK.ocrClean(d.text);return d})};
 return S;})();

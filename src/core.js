@@ -6,6 +6,9 @@ DK.fmt=function(x,d){if(!isFinite(x))return '—';d=d==null?2:d;return (+x).toLo
 DK.money=function(x){if(!isFinite(x))return '—';return '$'+(+x).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})};
 /* ---------- text ---------- */
 DK.nfc=function(s){s=String(s==null?'':s);return s.normalize?s.normalize('NFC'):s};
+// OCR text clean-up: NFC, then join runs of single accented capitals that Tesseract split with spaces ("Ắ Ằ Ẵ" -> "ẮẰẴ").
+// Only letters outside ASCII are joined, so normal words like "I A" or "A B C" are never touched. Repeated spaces inside a line collapse.
+DK.ocrClean=function(t){var L='[À-ÖØ-ÞĀ-ſƠ-ơƯ-ưẠ-ỹ]',re=new RegExp('(^|\\s)('+L+'(?: '+L+')+)(?=\\s|$)','g');return DK.nfc(t).split('\n').map(function(l){return l.replace(re,function(m,a,b){return b===b.toUpperCase()?a+b.replace(/ /g,''):m}).replace(/[ \t]{2,}/g,' ').replace(/[ \t]+$/,'')}).join('\n')};
 DK.deaccent=function(s){return DK.nfc(String(s).normalize('NFD').replace(/\p{M}+/gu,'').replace(/đ/g,'d').replace(/Đ/g,'D'))};
 DK.countText=function(s){s=DK.nfc(s);var w=(s.match(/[\p{L}\p{N}][\p{L}\p{M}\p{N}'’\-_.@]*/gu)||[]).length;
  var t=s.trim(),sent=t?(t.match(/[^.!?]*[\p{L}\p{N}][^.!?]*([.!?]+|$)/gu)||[]).filter(function(x){return x.trim()}).length:0;

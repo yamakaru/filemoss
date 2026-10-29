@@ -83,4 +83,6 @@ t('pw length clamp',DK.password({length:2,digits:true}).password.length,4);
 t('pw none throws',(()=>{try{DK.password({length:8});return 'no'}catch(e){return 'threw'}})(),'threw');
 t('pw strength',[DK.pwStrength(30),DK.pwStrength(50),DK.pwStrength(70),DK.pwStrength(100)],['Weak','Fair','Strong','Very strong']);
 {const cnt=new Array(10).fill(0);for(let i=0;i<20000;i++)cnt[DK.randInt(10)]++;t('randInt uniform-ish',cnt.every(x=>x>1700&&x<2300),true);}
+t('ocrClean joins split accented capitals',DK.ocrClean('Tiếng Việt: Ắ Ằ Ä Ã Ặ x'),'Tiếng Việt: ẮẰÄÃẶ x');t('ocrClean keeps lowercase pairs',DK.ocrClean('ở ă'),'ở ă');
+t('ocrClean NFC',DK.ocrClean('Vie\u0302\u0323t'),'Việt');t('ocrClean leaves ASCII letters',DK.ocrClean('I A B C test'),'I A B C test');t('ocrClean collapses spaces',DK.ocrClean('a  b\t\tc  \nx'),'a b c\nx');
 console.log(fail?`${fail}/${n} core tests FAILED`:`core: all ${n} tests passed`);process.exit(fail?1:0);

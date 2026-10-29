@@ -13,9 +13,11 @@ U.drop=function(zone,opt){var inp=zone.querySelector('input[type=file]');
  ['dragleave','drop'].forEach(function(e){zone.addEventListener(e,function(ev){ev.preventDefault();zone.classList.remove('over')})});
  zone.addEventListener('drop',function(ev){take(ev.dataTransfer.files)})};
 U.download=function(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},4000)};
-U.copy=function(text,btn){var done=function(){if(btn){var t=btn.textContent;btn.textContent='Copied!';setTimeout(function(){btn.textContent=t},1500)}};
- if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,fallback);else fallback();
- function fallback(){var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done()}catch(e){}ta.remove()}};
+U.copy=function(text,btn){var CT={ok:'Copied',no:'Could not copy. Select the text and press Ctrl+C (or long-press and Copy).'};
+ function say(ok){if(btn){if(!btn._o)btn._o=btn.textContent;clearTimeout(btn._t);btn.textContent=ok?'✓ '+CT.ok:btn._o;btn.classList.toggle('copied',ok);btn._t=setTimeout(function(){btn.textContent=btn._o;btn.classList.remove('copied')},ok?2000:4000)}
+  var s=btn?btn._m:U.$('#status');if(btn&&!s){s=btn._m=document.createElement('span');s.className='cpm';s.setAttribute('role','status');s.setAttribute('aria-live','polite');btn.insertAdjacentElement('afterend',s)}if(s){s.textContent=ok?CT.ok:CT.no;s.className=(btn?'cpm':'status')+(ok?'':' err')}}
+ function fallback(){var ta=document.createElement('textarea'),r=false;ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.top='0';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{ta.setSelectionRange(0,text.length)}catch(e){}try{r=document.execCommand('copy')}catch(e){}ta.remove();say(r)}
+ if(navigator.clipboard&&navigator.clipboard.writeText&&window.isSecureContext!==false)navigator.clipboard.writeText(text).then(function(){say(true)},fallback);else fallback()};
 U.status=function(msg,err){var s=U.$('#status');if(s){s.textContent=msg;s.className='status'+(err?' err':'')}};
 /* results list with per-file download + zip */
 U.results=function(items){var box=U.$('#out');box.innerHTML='';U._items=items;items.forEach(function(it,i){var row=document.createElement('div');row.className='fileout';
