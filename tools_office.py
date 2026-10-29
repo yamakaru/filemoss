@@ -4,8 +4,8 @@ def num(i,l,v,extra=''):return f"<label for='{i}'>{l}</label><input id='{i}' typ
 LIVE="document.querySelectorAll('.calc input,.calc select,.calc textarea').forEach(function(e){e.addEventListener('input',run);e.addEventListener('change',run)});run();"
 ROWS="function show(rows){UI.$('#r').innerHTML=rows.map(function(x){return '<tr><td>'+x[0]+'</td><td><b>'+x[1]+'</b></td></tr>'}).join('')}"
 # word counter
-ui="<div class='calc wide'><label for='t'>Paste or type your text</label><textarea id='t' rows='12' placeholder='Start typing…'></textarea></div><div class='stats' id='st'></div><p class='priv'>🔒 Your text stays in your browser—nothing is sent to a server.</p>"
-js="""function run(){var c=DK.countText(UI.$('#t').value),m=function(x){return !c.words?'0 sec':x<1?Math.ceil(x*60)+' sec':Math.round(x)+' min'};
+ui="<div class='calc wide'><label for='t'>Paste or type your text</label><textarea id='t' rows='12' placeholder='Start typing…'></textarea><div class='btnrow'><button type='button' class='btn sm' id='cpt'>Copy text</button></div></div><div class='stats' id='st'></div><p class='priv'>🔒 Your text stays in your browser—nothing is sent to a server.</p>"
+js="""UI.$('#cpt').onclick=function(){UI.copy(UI.$('#t').value,this)};function run(){var c=DK.countText(UI.$('#t').value),m=function(x){return !c.words?'0 sec':x<1?Math.ceil(x*60)+' sec':Math.round(x)+' min'};
 UI.$('#st').innerHTML=[['Words',DK.fmt(c.words)],['Characters',DK.fmt(c.chars)],['Characters (no spaces)',DK.fmt(c.charsNoSpaces)],['Sentences',DK.fmt(c.sentences)],['Paragraphs',DK.fmt(c.paragraphs)],['Reading time',m(c.readMin)],['Speaking time',m(c.speakMin)]].map(function(x){return '<div><b>'+x[1]+'</b><span>'+x[0]+'</span></div>'}).join('')}
 UI.$('#t').addEventListener('input',run);run();"""
 O={}
