@@ -8,6 +8,19 @@ DK.money=function(x){if(!isFinite(x))return '—';return '$'+(+x).toLocaleString
 DK.nfc=function(s){s=String(s==null?'':s);return s.normalize?s.normalize('NFC'):s};
 // OCR text clean-up: NFC, then join runs of single accented capitals that Tesseract split with spaces ("Ắ Ằ Ẵ" -> "ẮẰẴ").
 // Only letters outside ASCII are joined, so normal words like "I A" or "A B C" are never touched. Repeated spaces inside a line collapse.
+
+DK.VI_NUC=' a ă â e ê i o ô ơ u ư y ai ao au ay âu ây eo êu ia iê iu oa oă oe oi ôi ơi ua uâ uê ui uô uơ uy ưa ưi ươ ưu yê iêu yêu oai oao oay oeo uây uôi uya uyê uyu ươi ươu ';
+DK.viSyllable=function(w){var d=(w||'').toLowerCase().normalize('NFD'),tones=(d.match(/[\u0300\u0301\u0303\u0309\u0323]/g)||[]).length;if(tones>1)return false;var b=d.replace(/[\u0300\u0301\u0303\u0309\u0323]/g,'').normalize('NFC');var m=b.match(/^(ngh|ng|nh|ch|gh|gi|kh|ph|qu|th|tr|[bcdđghklmnpqrstvx])?([aăâeêioôơuưy]+)(ch|ng|nh|[cmnpt])?$/);if(!m)return false;if(DK.VI_NUC.indexOf(' '+m[2]+' ')>=0)return true;if(m[1]=='gi'||m[1]=='qu')return DK.VI_NUC.indexOf(' '+(m[1][1]+m[2])+' ')>=0||m[2]=='';return false};
+DK.VI_PLAIN='aăâeêioôơuưyAĂÂEÊIOÔƠUƯY';
+DK.viHasTone=function(c){return /[\u0300\u0301\u0303\u0309\u0323]/.test((c||'').normalize('NFD'))};
+// Vietnamese OCR repair: in a token that is NOT a valid Vietnamese syllable, a tone-marked vowel whose
+// LSTM alternatives include a plain Vietnamese vowel within MARGIN confidence is replaced by that vowel.
+DK.ocrFixVi=function(data,margin){margin=margin==null?12:margin;if(!data||!data.blocks||typeof data.text!='string')return data;var text=data.text,pos=0,out='';
+ (data.blocks||[]).forEach(function(b){(b.paragraphs||[]).forEach(function(p){(p.lines||[]).forEach(function(l){(l.words||[]).forEach(function(w){var wt=w.text||'';if(!wt)return;var at=text.indexOf(wt,pos);if(at<0)return;
+  var core=wt.replace(/^[^\p{L}]+|[^\p{L}]+$/gu,'');var nw=wt;
+  if(core&&/[^\x00-\x7f]/.test(core)&&!DK.viSyllable(core)&&w.symbols&&w.symbols.length==[...wt].length){var ch=w.symbols.map(function(sy){var t=sy.text;if(DK.viHasTone(t)&&sy.choices&&sy.choices.length){var top=Math.max.apply(null,sy.choices.map(function(c){return c.confidence}));var best=null;sy.choices.forEach(function(c){if(c.text!==t&&c.text.length==1&&DK.VI_PLAIN.indexOf(c.text)>=0&&c.confidence>=top-margin&&(!best||c.confidence>best.confidence))best=c});if(best)return best.text}return t});nw=ch.join('')}
+  out+=text.slice(pos,at)+nw;pos=at+wt.length})})})});
+ data.text=out+text.slice(pos);return data};
 DK.ocrClean=function(t,lang){if(/^vie/.test(lang||''))t=DK.nfc(t).replace(/ä/g,'ă').replace(/Ä/g,'Ă');var L='[À-ÖØ-ÞĀ-ſƠ-ơƯ-ưẠ-ỹ]',re=new RegExp('(^|\\s)('+L+'(?: '+L+')+)(?=\\s|$)','g');return DK.nfc(t).split('\n').map(function(l){return l.replace(re,function(m,a,b){return b===b.toUpperCase()?a+b.replace(/ /g,''):m}).replace(/[ \t]{2,}/g,' ').replace(/[ \t]+$/,'')}).join('\n')};
 DK.deaccent=function(s){return DK.nfc(String(s).normalize('NFD').replace(/\p{M}+/gu,'').replace(/đ/g,'d').replace(/Đ/g,'D'))};
 DK.countText=function(s){s=DK.nfc(s);var w=(s.match(/[\p{L}\p{N}][\p{L}\p{M}\p{N}'’\-_.@]*/gu)||[]).length;

@@ -86,4 +86,9 @@ t('pw strength',[DK.pwStrength(30),DK.pwStrength(50),DK.pwStrength(70),DK.pwStre
 t('ocrClean joins split accented capitals',DK.ocrClean('Tiếng Việt: Ắ Ằ Ä Ã Ặ x'),'Tiếng Việt: ẮẰÄÃẶ x');t('ocrClean keeps lowercase pairs',DK.ocrClean('ở ă'),'ở ă');
 t('ocrClean NFC',DK.ocrClean('Vie\u0302\u0323t'),'Việt');t('ocrClean leaves ASCII letters',DK.ocrClean('I A B C test'),'I A B C test');t('ocrClean collapses spaces',DK.ocrClean('a  b\t\tc  \nx'),'a b c\nx');
 t('ocrClean vie maps ä→ă',DK.ocrClean('Tiếng Việt: äâđ Ä','vie'),'Tiếng Việt: ăâđ Ă');t('ocrClean deu keeps ä',DK.ocrClean('Mädchen','deu'),'Mädchen');
+t('viSyllable đã',DK.viSyllable('đã'),true);t('viSyllable ngã',DK.viSyllable('ngã'),true);t('viSyllable người',DK.viSyllable('người'),true);t('viSyllable ãã… invalid',DK.viSyllable('ããđêôơư'),false);
+(function(){function sym(t,ch){return {text:t,choices:ch}}function D(words){return {text:words.map(w=>w.text).join(' ')+'\n',blocks:[{paragraphs:[{lines:[{words:words}]}]}]}}
+var a=D([{text:'xãã',symbols:[sym('x',[{text:'x',confidence:99}]),sym('ã',[{text:'ã',confidence:83},{text:'ă',confidence:75}]),sym('ã',[{text:'ã',confidence:82},{text:'â',confidence:80}])]}]);t('ocrFixVi repairs invalid token',DK.ocrFixVi(a).text,'xăâ\n');
+var b=D([{text:'đã',symbols:[sym('đ',[{text:'đ',confidence:99}]),sym('ã',[{text:'ã',confidence:83},{text:'ă',confidence:80}])]}]);t('ocrFixVi keeps valid đã',DK.ocrFixVi(b).text,'đã\n');
+var c=D([{text:'xã',symbols:[sym('x',[{text:'x',confidence:99}]),sym('ã',[{text:'ã',confidence:90},{text:'ă',confidence:50}])]},{text:'ããa',symbols:[sym('ã',[{text:'ã',confidence:90},{text:'ă',confidence:60}]),sym('ã',[{text:'ã',confidence:90}]),sym('a',[{text:'a',confidence:90}])]}]);t('ocrFixVi needs close alternative',DK.ocrFixVi(c).text,'xã ããa\n');})();
 console.log(fail?`${fail}/${n} core tests FAILED`:`core: all ${n} tests passed`);process.exit(fail?1:0);
