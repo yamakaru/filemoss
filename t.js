@@ -1,7 +1,7 @@
 /* Anonymous, cookie-free tool-usage counter: tool name + action + language only. No files, no input values, no identifiers. */
 (function(){try{var d=document,w=window,l=(d.documentElement.lang||'en').slice(0,2),p=location.pathname.split('/').filter(Boolean);if(p[0]===l)p.shift();var t=p[0]||'';if(!/^[a-z0-9-]{2,60}$/.test(t)||/^(about|privacy|contact)$/.test(t))return;
-var s={},x=/[?&]evtest=1/.test(location.search)?1:0;
-function f(a){try{if(s[a])return;s[a]=1;var b=JSON.stringify({t:t,a:a,l:l,x:x});if(navigator.sendBeacon&&navigator.sendBeacon('/api/e',new Blob([b],{type:'text/plain'})))return;if(w.fetch)fetch('/api/e',{method:'POST',body:b,keepalive:true,credentials:'omit'}).catch(function(){})}catch(e){}}
+var s={};
+function f(a){try{if(s[a])return;s[a]=1;var b=JSON.stringify({t:t,a:a,l:l});if(navigator.sendBeacon&&navigator.sendBeacon('/api/e',new Blob([b],{type:'text/plain'})))return;if(w.fetch)fetch('/api/e',{method:'POST',body:b,keepalive:true,credentials:'omit'}).catch(function(){})}catch(e){}}
 w.MTrack=f;
 d.addEventListener('submit',function(e){var g=e.target;if(g&&g.classList&&!g.classList.contains('search'))f('calc')},true);
 d.addEventListener('change',function(e){var g=e.target;if(g&&g.type==='file'&&g.files&&g.files.length)f('upload')},true);

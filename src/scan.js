@@ -106,7 +106,9 @@ function bgEstimate(g,w,h,r){var sw=Math.max(4,Math.round(w/r*4)),sh=Math.max(4,
   o[y*w+x]=(t[y0*sw+x0]*(1-ax)+t[y0*sw+x0+1]*ax)*(1-ay)+(t[(y0+1)*sw+x0]*(1-ax)+t[(y0+1)*sw+x0+1]*ax)*ay}}return o}
 S.rotate=function(cv,quarter){quarter=((quarter%4)+4)%4;if(!quarter)return cv;var o=document.createElement('canvas');o.width=quarter%2?cv.height:cv.width;o.height=quarter%2?cv.width:cv.height;var x=o.getContext('2d');x.translate(o.width/2,o.height/2);x.rotate(quarter*Math.PI/2);x.drawImage(cv,-cv.width/2,-cv.height/2);return o};
 S.clone=function(cv){var o=document.createElement('canvas');o.width=cv.width;o.height=cv.height;o.getContext('2d').drawImage(cv,0,0);return o};
-/* OCR (lazy-loaded tesseract.js, self-hosted, English) */
-var worker=null;S.ocrWorker=function(onProgress){if(worker)return worker;worker=UI.loadScript('/assets/tess/tesseract.min.js').then(function(){return Tesseract.createWorker('eng',1,{workerPath:'/assets/tess/worker.min.js',corePath:'/assets/tess/',langPath:'/assets/tess/lang',gzip:true,logger:function(m){S._onp&&S._onp(m)}})});worker.catch(function(){worker=null});return worker};
-S.ocr=function(img,onProgress){S._onp=onProgress;return S.ocrWorker().then(function(w){return w.recognize(img)}).then(function(r){return r.data})};
+/* OCR (lazy-loaded tesseract.js, self-hosted; one worker per language) */
+S.OCRL={en:'eng',vi:'vie',es:'spa',pt:'por',fr:'fra',de:'deu',it:'ita',id:'ind',ja:'jpn'};
+S.ocrDefault=function(){var l=(document.documentElement.lang||'en').slice(0,2).toLowerCase();return S.OCRL[l]||'eng'};
+var workers={};S.ocrWorker=function(lang){lang=lang||S.ocrDefault();if(workers[lang])return workers[lang];var w=workers[lang]=UI.loadScript('/assets/tess/tesseract.min.js').then(function(){return Tesseract.createWorker(lang,1,{workerPath:'/assets/tess/worker.min.js',corePath:'/assets/tess/',langPath:'/assets/tess/lang',gzip:true,logger:function(m){S._onp&&S._onp(m)}})});w.catch(function(){delete workers[lang]});return w};
+S.ocr=function(img,onProgress,lang){S._onp=onProgress;return S.ocrWorker(lang).then(function(w){return w.recognize(img)}).then(function(r){return r.data})};
 return S;})();

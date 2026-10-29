@@ -15,6 +15,12 @@ t('camel',DK.convertCase('Hello big World','camel'),'helloBigWorld');t('pascal',
 t('snake from camel',DK.convertCase('helloBigWorld','snake'),'hello_big_world');t('kebab',DK.convertCase('Hello, Big World!','kebab'),'hello-big-world');
 t('constant',DK.convertCase('max retry count','constant'),'MAX_RETRY_COUNT');t('upper',DK.convertCase('abc é','upper'),'ABC É');t('capitalized',DK.convertCase("it's a dog's life",'capitalized'),"It's A Dog's Life");
 // diff
+t('NFD words',DK.countText('Tiếng Việt đường phố nhiều ơn'.normalize('NFD')).words,6);
+t('NFD chars',DK.countText('Tiếng Việt'.normalize('NFD')).chars,10);
+t('NFD snake',DK.convertCase('đường Ơn'.normalize('NFD'),'snake'),'duong_on');t('NFC snake',DK.convertCase('đường Ơn','snake'),'duong_on');
+t('NFD camel',DK.convertCase('đường Ơn'.normalize('NFD'),'camel'),'duongOn');t('Đ constant',DK.convertCase('Đà Nẵng xanh','constant'),'DA_NANG_XANH');
+t('NFD upper stays NFC',DK.convertCase('đường'.normalize('NFD'),'upper'),'ĐƯỜNG');
+t('diff NFC vs NFD',DK.diffLines('Tiếng Việt đường','Tiếng Việt đường'.normalize('NFD')).every(x=>x.t==='='),true);
 t('diff',DK.diffLines('a\nb\nc','a\nx\nc').map(x=>x.t+x.s),['=a','-b','+x','=c']);
 t('diff same',DK.diffLines('a\nb','a\nb').every(x=>x.t==='='),true);
 t('diff ws',DK.diffLines('a  b','a b',{ignoreWs:true}).map(x=>x.t),['=']);

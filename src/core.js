@@ -5,13 +5,15 @@ DK.esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&
 DK.fmt=function(x,d){if(!isFinite(x))return '—';d=d==null?2:d;return (+x).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:d})};
 DK.money=function(x){if(!isFinite(x))return '—';return '$'+(+x).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})};
 /* ---------- text ---------- */
-DK.countText=function(s){s=s||'';var w=(s.match(/[\p{L}\p{N}][\p{L}\p{N}'’\-_.@]*/gu)||[]).length;
+DK.nfc=function(s){s=String(s==null?'':s);return s.normalize?s.normalize('NFC'):s};
+DK.deaccent=function(s){return DK.nfc(String(s).normalize('NFD').replace(/\p{M}+/gu,'').replace(/đ/g,'d').replace(/Đ/g,'D'))};
+DK.countText=function(s){s=DK.nfc(s);var w=(s.match(/[\p{L}\p{N}][\p{L}\p{M}\p{N}'’\-_.@]*/gu)||[]).length;
  var t=s.trim(),sent=t?(t.match(/[^.!?]*[\p{L}\p{N}][^.!?]*([.!?]+|$)/gu)||[]).filter(function(x){return x.trim()}).length:0;
  var para=t?t.split(/\n\s*\n/).filter(function(p){return p.trim()}).length:0;
  return {words:w,chars:[...s].length,charsNoSpaces:[...s.replace(/\s/g,'')].length,sentences:sent,paragraphs:para,lines:s?s.split(/\r?\n/).length:0,readMin:w/238,speakMin:w/140};};
 var SMALL=/^(a|an|and|as|at|but|by|for|in|nor|of|on|or|per|so|the|to|up|via|vs?\.?|yet)$/i;
-function words(s){return s.replace(/([a-z0-9])([A-Z])/g,'$1 $2').split(/[^\p{L}\p{N}]+/u).filter(Boolean)}
-DK.convertCase=function(s,m){s=s||'';switch(m){
+function words(s){return DK.deaccent(s).replace(/([a-z0-9])([A-Z])/g,'$1 $2').split(/[^\p{L}\p{M}\p{N}]+/u).filter(Boolean)}
+DK.convertCase=function(s,m){s=DK.nfc(s);switch(m){
  case 'upper':return s.toUpperCase();
  case 'lower':return s.toLowerCase();
  case 'sentence':return s.toLowerCase().replace(/(^\s*|[.!?]\s+)(\p{L})/gu,function(a,b,c){return b+c.toUpperCase()}).replace(/\bi\b/g,'I');
@@ -27,7 +29,7 @@ DK.convertCase=function(s,m){s=s||'';switch(m){
  case 'inverse':return s.replace(/\p{L}/gu,function(c){var u=c.toUpperCase();return c===u?c.toLowerCase():u});
  default:return s;}};
 /* line diff (LCS with common prefix/suffix trimming) */
-DK.diffLines=function(a,b,opt){opt=opt||{};var A=a.split(/\r?\n/),B=b.split(/\r?\n/);
+DK.diffLines=function(a,b,opt){opt=opt||{};var A=DK.nfc(a).split(/\r?\n/),B=DK.nfc(b).split(/\r?\n/);
  var key=function(x){if(opt.ignoreWs)x=x.replace(/\s+/g,' ').trim();if(opt.ignoreCase)x=x.toLowerCase();return x};
  var KA=A.map(key),KB=B.map(key),p=0;while(p<A.length&&p<B.length&&KA[p]===KB[p])p++;
  var s=0;while(s<A.length-p&&s<B.length-p&&KA[A.length-1-s]===KB[B.length-1-s])s++;

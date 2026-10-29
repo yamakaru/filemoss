@@ -4,7 +4,11 @@ U.$=function(s,r){return (r||document).querySelector(s)};
 U.loadScript=function(src){return new Promise(function(ok,no){if(document.querySelector('script[src="'+src+'"]'))return ok();var s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=function(){no(new Error('Could not load '+src))};document.head.appendChild(s)})};
 U.drop=function(zone,opt){var inp=zone.querySelector('input[type=file]');
  function take(fl){var a=[].slice.call(fl||[]);if(!a.length)return;opt.onFiles(opt.multiple?a:[a[0]])}
- inp.addEventListener('change',function(){take(inp.files);inp.value=''});
+ var busy=0;function pick(){if(busy||!inp.files||!inp.files.length)return;busy=1;var a=[].slice.call(inp.files);setTimeout(function(){try{inp.value=''}catch(e){}busy=0},0);take(a)}
+ inp.addEventListener('change',pick);inp.addEventListener('input',pick);
+ /* files chosen before this script was ready (slow first load) are picked up too */
+ if(inp.files&&inp.files.length)setTimeout(pick,0);
+ zone.addEventListener('keydown',function(ev){if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();inp.click()}});if(!zone.hasAttribute('tabindex'))zone.tabIndex=0;
  ['dragenter','dragover'].forEach(function(e){zone.addEventListener(e,function(ev){ev.preventDefault();zone.classList.add('over')})});
  ['dragleave','drop'].forEach(function(e){zone.addEventListener(e,function(ev){ev.preventDefault();zone.classList.remove('over')})});
  zone.addEventListener('drop',function(ev){take(ev.dataTransfer.files)})};
