@@ -1,0 +1,40 @@
+# PDF→Word regression checks on real-world fixtures (tester round 1). Usage: python3 check_p2w_fx.py DOCXDIR
+import sys,os,re,json,zipfile,unicodedata
+import docx
+D=sys.argv[1];T=os.path.join(os.path.dirname(__file__),'fixtures','p2w_truth');ST=json.load(open(os.path.join(D,'_status.json')))
+W='{http://schemas.openxmlformats.org/wordprocessingml/2006/main}'
+def lev(a,b):
+  try:
+    from rapidfuzz.distance import Levenshtein;return Levenshtein.distance(a,b)
+  except ImportError:
+    import difflib;return round((1-difflib.SequenceMatcher(None,a,b,autojunk=False).ratio())*max(len(a),len(b)))
+def norm(t):return re.sub(r'\s+',' ',unicodedata.normalize('NFC',t)).strip()
+def text(p):
+  d=docx.Document(p);return '\n'.join([x.text for x in d.paragraphs]+[' '.join(c.text for c in r.cells) for t in d.tables for r in t.rows])
+def cer(p,truth):a=norm(text(p));b=norm(text(truth) if truth.endswith('.docx') else open(truth,encoding='utf-8').read());return lev(a,b)/len(b)
+def xml(p):return zipfile.ZipFile(p).read('word/document.xml').decode()
+fails=[]
+def ok(c,msg):
+  print(('PASS ' if c else 'FAIL ')+msg)
+  if not c:fails.append(msg)
+for pre in ['','m_']:
+  f=lambda n:os.path.join(D,pre+n+'.docx')
+  for n in ['vi_lo','vi_dejavu','Hợp đồng #1 (bản cuối) & thử']:
+    c=cer(f(n),os.path.join(T,'vi_lo.docx'));ok(c<0.02,'%s%s CER %.4f'%(pre,n,c))
+    x=xml(f(n));ok(x.count('<w:numPr>')>=6,'%s%s numPr %d'%(pre,n,x.count('<w:numPr>')))
+    ok(x.count('<w:tbl>')==1,'%s%s only the real price table'%(pre,n))
+    z=zipfile.ZipFile(f(n));ok('word/numbering.xml' in z.namelist() and 'docProps/core.xml' in z.namelist() and not [m for m in z.namelist() if m.endswith('/')],'%s%s package parts'%(pre,n))
+    ok(len(re.findall(r'pageBreakBefore',x))==1,'%s%s 2 pages'%(pre,n))
+  c=cer(f('book'),os.path.join(T,'book.txt'));ok(c<0.01,'%sbook CER %.4f'%(pre,c))
+  x=xml(f('book'));ok(x.count('<w:tbl>')==0,'%sbook TOC is not a table'%pre);ok(x.count('<w:numPr>')==0,'%sbook no fake lists'%pre);ok(x.count('pageBreakBefore')==52,'%sbook 53 pages'%pre)
+  x=xml(f('rot_a3'));sz=re.findall(r'<w:pgSz w:w="(\d+)" w:h="(\d+)"( w:orient="landscape")?',x)
+  ok([(int(a)//20,int(b)//20,bool(o)) for a,b,o in sz]==[(842,595,True),(1191,842,True)],'%srot_a3 sections %s'%(pre,sz))
+  x=xml(f('two_col'));t=norm(text(f('two_col')));ok(x.count('<w:tbl>')==0 and len(t)>2000,'%stwo_col text'%pre)
+  ok(ST[pre+'two_col.pdf']['notes'] and 'multiple columns' in ST[pre+'two_col.pdf']['notes'][0],'%stwo_col multi-column note'%pre)
+  s=ST[pre+'no_tounicode.pdf'];ok('garbled' in s['status'] and s['ocrhint'],'%sno_tounicode garbled warning + OCR link'%pre)
+  s=ST[pre+'my_scan.pdf'];ok('scan' in s['status'] and s['ocrhint'],'%smy_scan scan hint'%pre)
+  z=zipfile.ZipFile(f('my_scan'));ok(sorted(m for m in z.namelist() if 'media' in m)==['word/media/image1.jpeg','word/media/image2.jpeg'],'%smy_scan JPEG kept'%pre)
+  for e in re.findall(r'<wp:extent cx="(\d+)" cy="(\d+)"',xml(f('my_scan'))):ok(int(e[1])/12700<=792-108,'%smy_scan image fits page height'%pre)
+  s=ST[pre+'vi_lo.pdf'];ok(s['status'].startswith('Done'),'%svi_lo status Done'%pre)
+  ok(norm(text(f('type3')))!='','%stype3 text'%pre)
+print('p2w fixtures:',len(fails),'failure(s)');sys.exit(1 if fails else 0)
