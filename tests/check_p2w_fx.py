@@ -47,6 +47,8 @@ for pre in ['','m_']:
   c=cer(f('toc'),os.path.join(T,'toc.docx'));ok(c<0.01,'%stoc CER %.4f'%(pre,c))
   ok(xml(f('toc')).count('w:leader="dot"')>=3,'%stoc dot leaders'%pre)
   s=ST[pre+'no_tounicode.pdf'];ok(s['status'].endswith('(OCR).') and s['href']=='/image-to-text/?evtest=1','%sOCR warning period + link %s'%(pre,s['href']))
+  s=ST[pre+'toc_bad.pdf'];ok('garbled' in s['status'] and s['ocrhint'],'%stoc_bad garbled warning + OCR link'%pre)
+  for n in ['vi_lo','vi_dejavu','Hợp đồng #1 (bản cuối) & thử','book','rot_a3','two_col','type3','vi_list','toc']:ok(ST[pre+n+'.pdf']['status'].startswith('Done') and not ST[pre+n+'.pdf']['ocrhint'],'%s%s no warning'%(pre,n))
   s=ST[pre+'vi_lo.pdf'];ok(s['status'].startswith('Done'),'%svi_lo status Done'%pre)
   ok(norm(text(f('type3')))!='','%stype3 text'%pre)
 print('p2w fixtures:',len(fails),'failure(s)');sys.exit(1 if fails else 0)
