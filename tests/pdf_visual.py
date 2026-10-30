@@ -1,4 +1,4 @@
-"""Render two PDFs at 60dpi and print min SSIM (RGB render -> luma, per page) and max mean-RGB colour shift. Usage: python3 pdf_visual.py A.pdf B.pdf"""
+"""Render two PDFs at 60dpi and print min SSIM (RGB render -> luma, per page) and max mean-RGB colour shift (poppler), then max shift under MuPDF. Usage: python3 pdf_visual.py A.pdf B.pdf"""
 import sys,subprocess,tempfile,glob,numpy as np
 from PIL import Image
 def ren(p):
@@ -13,4 +13,10 @@ A,B=ren(sys.argv[1]),ren(sys.argv[2])
 same=len(A)==len(B) and all(a.shape==b.shape for a,b in zip(A,B))
 CA,CB=col(sys.argv[1]),col(sys.argv[2])
 cd=max(float(np.abs(a.reshape(-1,3).mean(0)-b.reshape(-1,3).mean(0)).max()) for a,b in zip(CA,CB)) if same else 999
-print(len(A),len(B),min(ssim(a,b) for a,b in zip(A,B)) if same else 0,cd)
+def mu(p):
+    import pymupdf
+    return [np.frombuffer(x.samples,np.uint8).reshape(-1,x.n)[:,:3].astype(np.float64).mean(0) for x in (pg.get_pixmap(dpi=20) for pg in pymupdf.open(p))]
+try:
+    MA,MB=mu(sys.argv[1]),mu(sys.argv[2]);md=max(float(np.abs(a-b).max()) for a,b in zip(MA,MB)) if len(MA)==len(MB) else 999
+except ImportError: md=0
+print(len(A),len(B),min(ssim(a,b) for a,b in zip(A,B)) if same else 0,cd,md)

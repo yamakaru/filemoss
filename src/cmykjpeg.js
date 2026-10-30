@@ -952,8 +952,6 @@ var JpegImage = (function jpegImage() {
           }
           break;
         case 4:
-          if (!this.adobe)
-            throw new Error('Unsupported color mode (4 components)');
           // The default transform for four components is false
           colorTransform = false;
           // The adobe transform marker overrides any previous setting
@@ -1730,7 +1728,7 @@ function JPEGEncoder(quality) {
 	
 			// Add JPEG headers
 			writeWord(0xFFD8); // SOI
-			writeWord(0xFFEE);writeWord(14);[0x41,0x64,0x6F,0x62,0x65].forEach(writeByte);writeWord(100);writeWord(0);writeWord(0);writeByte(0);
+			if(image.adobe!==false){writeWord(0xFFEE);writeWord(14);[0x41,0x64,0x6F,0x62,0x65].forEach(writeByte);writeWord(100);writeWord(0);writeWord(0);writeByte(0);}
 			writeDQT();
 			writeSOF0(image.width,image.height);
 			writeDHT();
@@ -1874,7 +1872,7 @@ function JPEGEncoder(quality) {
 
 
 function decodeRaw(bytes){var d=new JpegImage();d.opts={colorTransform:undefined,tolerantDecoding:true,maxResolutionInMP:100,maxMemoryUsageInMB:1024};JpegImage.resetMaxMemoryUsage(1024*1024*1024);d.parse(bytes);
-if(d.components.length!==4||!d.adobe)return null;var px=d.getData(d.width,d.height);for(var i=0;i<px.length;i++)px[i]=255-px[i];return {width:d.width,height:d.height,data:px,transform:d.adobe.transformCode}}
+if(d.components.length!==4)return {skip:'components='+d.components.length};if(d.adobe&&d.adobe.transformCode)return {skip:'adobe transform '+d.adobe.transformCode};var px=d.getData(d.width,d.height);for(var i=0;i<px.length;i++)px[i]=255-px[i];return {width:d.width,height:d.height,data:px,adobe:!!d.adobe}}
 function encodeRaw(img,q){return new JPEGEncoder(q).encode(img,q)}
 (typeof window!=='undefined'?window:globalThis).CMYKJPEG={decode:decodeRaw,encode:encodeRaw};
 })();
