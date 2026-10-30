@@ -55,7 +55,7 @@ else if(f===O.beginMarkedContent||f===O.beginMarkedContentProps){var ac=useA?act
 else if(f===O.endMarkedContent){var top=mk.pop();if(top!=null&&top!==false&&mk.span){var sp=mk.span;mk.span=null;if(sp.length){var x1=Math.max.apply(0,sp.map(function(g){return g.x+g.w}));G.push({x:sp[0].x,y:sp[0].y,w:x1-sp[0].x,s:top,sz:sp[0].sz,f:sp[0].f,at:true})}}}
 else if((f===O.showText||f===O.showSpacedText)&&T.font&&T.fs){var gl=a[0],fm=(T.font.fontMatrix||[0.001,0,0,0.001,0,0]),M=mul(m,T.tm),S=0,sc=Math.hypot(M[0],M[1]),szv=T.fs*Math.hypot(M[2],M[3])*(fm[3]/0.001||1);if(T.font.isType3Font)szv=T.fs*Math.hypot(M[2],M[3]);
 for(var k=0;k<gl.length;k++){var g=gl[k];if(typeof g==='number'){S-=g*T.fs/1000;continue}if(!g)continue;var X=T.x+T.hs*S,Y=T.y+T.rise,px=M[0]*X+M[2]*Y+M[4],py=M[1]*X+M[3]*Y+M[5],adv=(g.width||0)*T.fs*fm[0]+((g.isSpace?T.ws:0)+T.cs);
-var rec={x:px,y:py,w:Math.max(0,(g.width||0)*T.fs*fm[0])*T.hs*sc,s:g.unicode||'',sz:Math.abs(szv),f:T.fid};if(!g.isSpace&&!/^[\s\p{P}\p{S}\d]$/u.test(g.unicode||'x'))if(!/^\p{Co}$/u.test(g.unicode))NGc++;if(!g.isSpace&&!/^\s+$/.test(g.unicode||'x')){var fb=FB[T.fid]||(FB[T.fid]=[0,0]);fb[0]++;if(!g.unicode||/^[\u0000-\u001f\u007f-\u009f\ufffd]+$/.test(g.unicode))fb[1]++}if(mk.span)mk.span.push(rec);else G.push(rec);S+=adv}T.x+=S*T.hs}
+var rec={x:px,y:py,w:Math.max(0,(g.width||0)*T.fs*fm[0])*T.hs*sc,s:g.unicode||'',sz:Math.abs(szv),f:T.fid};if(!g.isSpace&&!/^[\s\p{P}\p{S}\d]$/u.test(g.unicode||'x'))if(!/^\p{Co}$/u.test(g.unicode))NGc++;if(!g.isSpace&&!/^\s+$/.test(g.unicode||'x')){var fb=FB[T.fid]||(FB[T.fid]=[0,0,0,0,0,0,(T.font&&T.font.name)||'']);fb[0]++;var u0=g.unicode||'';if(/\p{L}/u.test(u0))fb[2]++;else if(/^[\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e]$/.test(u0)&&!/^[.,_\-]$/.test(u0))fb[3]++;else if(/^[\p{Co}\p{S}]$/u.test(u0))fb[4]++;if(/^[\d.,_\-]$/.test(u0))fb[5]++;if(!g.unicode||/^[\u0000-\u001f\u007f-\u009f\ufffd]+$/.test(g.unicode))fb[1]++}if(mk.span)mk.span.push(rec);else G.push(rec);S+=adv}T.x+=S*T.hs}
 else if(f===O.paintImageXObject||f===O.paintInlineImageXObject||f===O.paintImageXObjectRepeat){var im=null;try{if(f===O.paintInlineImageXObject)im=a[0];else{var id=a[0];im=await new Promise(function(res,rej){var to=setTimeout(function(){rej(new Error('t'))},5000);(id.startsWith('g_')?p.commonObjs:p.objs).get(id,function(v){clearTimeout(to);res(v)})})}}catch(e){}
 if(im){var xs=[m[4],m[4]+m[0],m[4]+m[2],m[4]+m[0]+m[2]],ys=[m[5],m[5]+m[1],m[5]+m[3],m[5]+m[1]+m[3]],x0=Math.min.apply(0,xs),x1b=Math.max.apply(0,xs),y0=Math.min.apply(0,ys),y1=Math.max.apply(0,ys);
 if(x1b-x0>8&&y1-y0>8)out.push({im:im,w:x1b-x0,h:y1-y0,top:y0,x:x0})}}}
@@ -100,7 +100,7 @@ async function convert(pj,data,onp){var raw=data.byteLength<=150e6?data.slice(0)
 var pdf=await pj.getDocument({data:data,isOffscreenCanvasSupported:false,isImageDecoderSupported:false}).promise,N=pdf.numPages,blocks=[],media=[],chars=0,allSz=[],imgCount=0,textPages=0,scanPages=0,multiCol=[],allText=[],NG=0,FBD={};
 for(var pn=1;pn<=N;pn++){if(onp)onp(pn,N);var p=await pdf.getPage(pn),vp=p.getViewport({scale:1}),vt=vp.transform,pw=vp.width,ph=vp.height,tc=await p.getTextContent({includeMarkedContent:true}),fonts={};
 var items=tc.items,acts=null;if(items.some(function(i){return i.type==='beginMarkedContentProps'&&!i.id})){var doc=await plDoc(raw);if(doc){var cs=plContent(doc,pn-1);if(cs){var a=markedActual(cs),nm=items.filter(function(i){return i.type==='beginMarkedContent'||i.type==='beginMarkedContentProps'}).length;if(a.length===nm&&a.some(function(v){return v!=null}))acts=a}}}
-var scn=await pageScan(pj,p,vt,acts),imgs=scn.imgs;NG+=scn.ng||0;for(var fk in scn.fb){var fd=FBD[fk]||(FBD[fk]=[0,0]);fd[0]+=scn.fb[fk][0];fd[1]+=scn.fb[fk][1]}items=applyActual(items,acts);
+var scn=await pageScan(pj,p,vt,acts),imgs=scn.imgs;NG+=scn.ng||0;for(var fk in scn.fb){var fd=FBD[fk]||(FBD[fk]=[0,0,0,0,0,0,scn.fb[fk][6]]);for(var fi=0;fi<6;fi++)fd[fi]+=scn.fb[fk][fi]}items=applyActual(items,acts);
 var L=lines(items,vt,ph,tc.styles,scn.glyphs),pchars=0;L.forEach(function(l){l.segs.forEach(function(s){if(!(s.f in fonts)){try{fonts[s.f]=p.commonObjs.has(s.f)?p.commonObjs.get(s.f):null}catch(e){fonts[s.f]=null}}s.b=isBold(s.f,tc.styles,fonts)});pchars+=l.text.length;allText.push(l.text);allSz.push([l.sz,l.text.length])});chars+=pchars;if(L.length)textPages++;
 var big=imgs.some(function(g){return g.w*g.h>pw*ph*0.5});if(pchars<5&&big)scanPages++;
 var gm=columns(L,pw),ord;if(gm){multiCol.push(pn);ord=orderCols(L,gm)}else ord=L.map(function(l){return {l:l,band:0,col:0}});
@@ -116,12 +116,16 @@ pb.sort(function(a,b){return a.band-b.band||a.col-b.col||a.y-b.y||(a.k==='img'?-
 blocks.push({page:pn,items:pb,pw:pw,ph:ph});p.cleanup()}
 await pdf.destroy();PL=null;
 var tot=0,acc={};allSz.forEach(function(s){var k=Math.round(s[0]*2)/2;acc[k]=(acc[k]||0)+s[1];tot+=s[1]});var body=12,bm=0;for(var k in acc)if(acc[k]>bm){bm=acc[k];body=+k}
-return {blocks:blocks,media:media,body:body,chars:chars,pages:N,images:imgCount,textPages:textPages,scanPages:scanPages,multiCol:multiCol,garbled:fontBad(FBD)||!fontClean(FBD)&&garbled(allText.join('\n'),NG),glyphs:NG}}
+return {blocks:blocks,media:media,body:body,chars:chars,pages:N,images:imgCount,textPages:textPages,scanPages:scanPages,multiCol:multiCol,garbled:fontBad(FBD)||fontJunk(FBD)||latinOdd(allText.join(' '))||!fontClean(FBD)&&garbled(allText.join('\n'),NG),glyphs:NG}}
 /* text that came out of fonts without a usable ToUnicode map */
 // per-font check: a font whose glyphs mostly decode to control chars / nothing has no usable ToUnicode.
 // Warn when such fonts draw >=12% of glyphs, or when any one of them draws >=5 glyphs.
 function fontBad(F){var tot=0,bg=0,any=false;for(var k in F){tot+=F[k][0];if(F[k][0]>=5&&F[k][1]>=0.5*F[k][0]){bg+=F[k][0];if(F[k][1]>=5)any=true}}return tot>0&&(bg/tot>=0.12||any)}
 // fonts that decode every glyph to a real (non-control) character are trusted: PUA icons and math symbols are fine
+// text fonts (not symbol/PUA/math fonts) whose ToUnicode decodes mostly to ASCII punctuation/symbols instead of letters
+function fontJunk(F){var x=0,L=0,P=0;for(var k in F){var f=F[k],m=f[0]-f[5];if(/symbol|wingding|dingbat|math|webding/i.test(f[6])||f[4]>=0.5*f[0])continue;if(m>=30&&(f[3]>0.4*m||f[2]<0.3*m))return true;x+=m;L+=f[2];P+=f[3]}return x>=30&&(P>0.4*x||L<0.3*x)}
+// shifted-letter maps (e.g. Caesar +3): Latin text with almost no vowels
+function latinOdd(t){var s=t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z]/g,'').toLowerCase();if(s.length<100)return false;return (s.match(/[aeiouy]/g)||[]).length/s.length<0.2}
 function fontClean(F){var tot=0;for(var k in F){tot+=F[k][0];if(F[k][1])return false}return tot>=30}
 function garbled(t,ng){var s=t.replace(/\s+/g,'').replace(/[\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e\d]/g,'').replace(/[\p{Co}\p{S}]/gu,'').replace(/([.·…_\-–—=*•])\1{2,}\d*/g,''),n=s.length;if(ng>=30&&(s.match(/\p{L}/gu)||[]).length<0.4*ng)return true;if(n<40)return false;var bad=(s.match(/[\u0000-\u001f\u0080-\u009f\ufffd\ue000-\uf8ff]/g)||[]).length,let=(s.match(/\p{L}/gu)||[]).length;
 if(bad/n>0.05||let/n<0.45)return true;

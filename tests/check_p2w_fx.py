@@ -49,7 +49,7 @@ for pre in ['','m_']:
   s=ST[pre+'no_tounicode.pdf'];ok(s['status'].endswith('(OCR).') and s['href']=='/image-to-text/?evtest=1','%sOCR warning period + link %s'%(pre,s['href']))
   s=ST[pre+'toc_bad.pdf'];ok('garbled' in s['status'] and s['ocrhint'],'%stoc_bad garbled warning + OCR link'%pre)
   for n in ['vi_lo','vi_dejavu','Hợp đồng #1 (bản cuối) & thử','book','rot_a3','two_col','type3','vi_list','toc','numbers','cjk','pua_math','mixed','zh_latin']:ok(ST[pre+n+'.pdf']['status'].startswith('Done') and not ST[pre+n+'.pdf']['ocrhint'],'%s%s no warning'%(pre,n))
-  for n in ['half_bad','few_bad','ten_bad']:s=ST[pre+n+'.pdf'];ok('garbled' in s['status'] and s['ocrhint'],'%s%s garbled warning + OCR link'%(pre,n))
+  for n in ['half_bad','few_bad','ten_bad','junkmap','caesar']:s=ST[pre+n+'.pdf'];ok('garbled' in s['status'] and s['ocrhint'],'%s%s garbled warning + OCR link'%(pre,n))
   c=cer(f('numbers'),os.path.join(T,'numbers.docx'));ok(c<0.01,'%snumbers CER %.4f'%(pre,c))
   c=cer(f('cjk'),os.path.join(T,'cjk.docx'));t=text(f('cjk'));ok(c<0.01 and 'しま す' not in t and '转换 质量' not in t and 'Word に' not in t,'%scjk CER %.4f no stray spaces'%(pre,c))
   import docx as _dx
