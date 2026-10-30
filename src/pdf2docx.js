@@ -116,7 +116,7 @@ pb.sort(function(a,b){return a.band-b.band||a.col-b.col||a.y-b.y||(a.k==='img'?-
 blocks.push({page:pn,items:pb,pw:pw,ph:ph});p.cleanup()}
 await pdf.destroy();PL=null;
 var tot=0,acc={};allSz.forEach(function(s){var k=Math.round(s[0]*2)/2;acc[k]=(acc[k]||0)+s[1];tot+=s[1]});var body=12,bm=0;for(var k in acc)if(acc[k]>bm){bm=acc[k];body=+k}
-return {blocks:blocks,media:media,body:body,chars:chars,pages:N,images:imgCount,textPages:textPages,scanPages:scanPages,multiCol:multiCol,garbled:fontBad(FBD)||fontJunk(FBD)||latinOdd(allText.join(' '))||!fontClean(FBD)&&garbled(allText.join('\n'),NG),glyphs:NG}}
+return {blocks:blocks,media:media,body:body,chars:chars,pages:N,images:imgCount,textPages:textPages,scanPages:scanPages,multiCol:multiCol,garbled:fontBad(FBD)||fontJunk(FBD)||!fontClean(FBD)&&garbled(allText.join('\n'),NG),glyphs:NG}}
 /* text that came out of fonts without a usable ToUnicode map */
 // per-font check: a font whose glyphs mostly decode to control chars / nothing has no usable ToUnicode.
 // Warn when such fonts draw >=12% of glyphs, or when any one of them draws >=5 glyphs.
@@ -124,9 +124,9 @@ function fontBad(F){var tot=0,bg=0,any=false;for(var k in F){tot+=F[k][0];if(F[k
 // fonts that decode every glyph to a real (non-control) character are trusted: PUA icons and math symbols are fine
 // text fonts (not symbol/PUA/math fonts) whose ToUnicode decodes mostly to ASCII punctuation/symbols instead of letters
 function fontJunk(F){var x=0,L=0,P=0;for(var k in F){var f=F[k],m=f[0]-f[5];if(/symbol|wingding|dingbat|math|webding/i.test(f[6])||f[4]>=0.5*f[0])continue;if(m>=30&&(f[3]>0.4*m||f[2]<0.3*m))return true;x+=m;L+=f[2];P+=f[3]}return x>=30&&(P>0.4*x||L<0.3*x)}
-// shifted-letter maps (e.g. Caesar +3): Latin text with almost no vowels
-function latinOdd(t){var s=t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z]/g,'').toLowerCase();if(s.length<100)return false;return (s.match(/[aeiouy]/g)||[]).length/s.length<0.2}
-function fontClean(F){var tot=0;for(var k in F){tot+=F[k][0];if(F[k][1])return false}return tot>=30}
+// Known limit: letter-shift ToUnicode maps (e.g. Caesar +3) decode to real letters and are not detected;
+// a vowel-ratio check was tried and removed because real Czech/Polish/German prose scores lower.
+function fontClean(F){var tot=0,bad=0;for(var k in F){tot+=F[k][0];bad+=F[k][1]}return tot>=30&&bad<=Math.max(1,0.02*tot)}
 function garbled(t,ng){var s=t.replace(/\s+/g,'').replace(/[\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e\d]/g,'').replace(/[\p{Co}\p{S}]/gu,'').replace(/([.·…_\-–—=*•])\1{2,}\d*/g,''),n=s.length;if(ng>=30&&(s.match(/\p{L}/gu)||[]).length<0.4*ng)return true;if(n<40)return false;var bad=(s.match(/[\u0000-\u001f\u0080-\u009f\ufffd\ue000-\uf8ff]/g)||[]).length,let=(s.match(/\p{L}/gu)||[]).length;
 if(bad/n>0.05||let/n<0.45)return true;
 var w=t.match(/\p{L}{2,}/gu)||[];if(w.length<10)return false;var ok=0;w.forEach(function(x){var lx=x.toLowerCase();if(/[aeiouyàáâãèéêìíòóôõùúýăđơưạ-ỹ\u0400-\u04ff\u0370-\u03ff\u3040-\u30ff\u4e00-\u9fff\uac00-\ud7af\u0600-\u06ff\u0900-\u097f\u0e00-\u0e7f]/.test(lx)&&!/[a-z][A-Z]/.test(x.slice(1)))ok++});
