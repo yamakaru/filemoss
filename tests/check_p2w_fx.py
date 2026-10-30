@@ -35,6 +35,12 @@ for pre in ['','m_']:
   s=ST[pre+'my_scan.pdf'];ok('scan' in s['status'] and s['ocrhint'],'%smy_scan scan hint'%pre)
   z=zipfile.ZipFile(f('my_scan'));ok(sorted(m for m in z.namelist() if 'media' in m)==['word/media/image1.jpeg','word/media/image2.jpeg'],'%smy_scan JPEG kept'%pre)
   for e in re.findall(r'<wp:extent cx="(\d+)" cy="(\d+)"',xml(f('my_scan'))):ok(int(e[1])/12700<=792-108,'%smy_scan image fits page height'%pre)
+  c=cer(f('vi_list'),os.path.join(T,'vi_list.docx'));ok(c<0.005,'%svi_list CER %.4f'%(pre,c))
+  ps=docx.Document(f('vi_list')).paragraphs;isl=lambda q:q._p.pPr is not None and q._p.pPr.numPr is not None
+  ok(sum(map(isl,ps))==7,'%svi_list 7 real list items'%pre)
+  for mk in ['1. Đây là đoạn văn thường','- Đây là đoạn văn thường']:
+    hit=[q for q in ps if q.text.startswith(mk)];ok(len(hit)==1 and not isl(hit[0]) and 'trang' in hit[0].text[-30:],'%svi_list standalone "%s" kept as one plain paragraph'%(pre,mk[:2]))
+  ok(xml(f('vi_list')).count('<w:tbl>')==1,'%svi_list real table'%pre)
   s=ST[pre+'vi_lo.pdf'];ok(s['status'].startswith('Done'),'%svi_lo status Done'%pre)
   ok(norm(text(f('type3')))!='','%stype3 text'%pre)
 print('p2w fixtures:',len(fails),'failure(s)');sys.exit(1 if fails else 0)
