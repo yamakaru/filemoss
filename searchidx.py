@@ -9,6 +9,8 @@ def cards(p):
         out[slug]=(h.get_text(" ",strip=True),a.get_text(" ",strip=True))
     return out
 EN,VI=cards("dist/index.html"),cards("dist/vi/index.html")
+import json
+KW=json.load(open("search_kw.json",encoding="utf-8")) if os.path.exists("search_kw.json") else {}
 TAG=re.compile(r"<a\b[^>]*\bclass=(['\"])card\1[^>]*>")
 for f in glob.glob("dist/**/*.html",recursive=True):
     h=open(f,encoding="utf-8").read()
@@ -19,7 +21,7 @@ for f in glob.glob("dist/**/*.html",recursive=True):
         slug=hr.group(2).strip("/").split("/")[-1] if hr else ""
         if slug not in EN:return t
         e,v=EN[slug],VI.get(slug,("",""))
-        return t[:-1]+' data-x="%s" data-k="%s">'%(html.escape(e[0]+" "+v[0]),html.escape(e[1]+" "+v[1]))
+        return t[:-1]+' data-x="%s" data-k="%s" data-v="%s">'%(html.escape(e[0]+" "+v[0]),html.escape(e[1]+" "+v[1]),html.escape(KW.get(slug,"")))
     n=TAG.sub(add,h)
     if n!=h:open(f,"w",encoding="utf-8").write(n)
 print("searchidx: EN",len(EN),"VI",len(VI))
