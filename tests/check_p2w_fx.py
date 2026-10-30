@@ -41,6 +41,12 @@ for pre in ['','m_']:
   for mk in ['1. Đây là đoạn văn thường','- Đây là đoạn văn thường']:
     hit=[q for q in ps if q.text.startswith(mk)];ok(len(hit)==1 and not isl(hit[0]) and 'trang' in hit[0].text[-30:],'%svi_list standalone "%s" kept as one plain paragraph'%(pre,mk[:2]))
   ok(xml(f('vi_list')).count('<w:tbl>')==1,'%svi_list real table'%pre)
+  lv=[(q._p.pPr.numPr.ilvl.val,q._p.pPr.numPr.numId.val) for q in ps if isl(q)]
+  ok([a for a,b in lv]==[0,1,1,0,0,0,0] and lv[0][1]==lv[1][1]==lv[3][1],'%svi_list ilvl/numId %s'%(pre,lv))
+  s=ST[pre+'toc.pdf'];ok(s['status'].startswith('Done') and not s['ocrhint'],'%stoc no garbled warning'%pre)
+  c=cer(f('toc'),os.path.join(T,'toc.docx'));ok(c<0.01,'%stoc CER %.4f'%(pre,c))
+  ok(xml(f('toc')).count('w:leader="dot"')>=3,'%stoc dot leaders'%pre)
+  s=ST[pre+'no_tounicode.pdf'];ok(s['status'].endswith('(OCR).') and s['href']=='/image-to-text/?evtest=1','%sOCR warning period + link %s'%(pre,s['href']))
   s=ST[pre+'vi_lo.pdf'];ok(s['status'].startswith('Done'),'%svi_lo status Done'%pre)
   ok(norm(text(f('type3')))!='','%stype3 text'%pre)
 print('p2w fixtures:',len(fails),'failure(s)');sys.exit(1 if fails else 0)
