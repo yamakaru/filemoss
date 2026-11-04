@@ -1,1 +1,9 @@
-{"image-resizer": "đổi cỡ đổi cỡ ảnh thu nhỏ ảnh", "percentage-calculator": "%", "compress-pdf": "compress reduce size nén nén pdf giảm dung lượng giảm dung lượng pdf", "pdf-to-word": "pdf to word pdf to docx convert pdf word doc editable chuyển pdf sang word đổi pdf sang word pdf sang docx chuyển đổi pdf"}
+{
+ "image-resizer": "đổi cỡ đổi cỡ ảnh thu nhỏ ảnh",
+ "percentage-calculator": "%",
+ "compress-pdf": "compress reduce size nén nén pdf giảm dung lượng giảm dung lượng pdf",
+ "pdf-to-word": "pdf to word pdf to docx convert pdf word doc editable chuyển pdf sang word đổi pdf sang word pdf sang docx chuyển đổi pdf",
+ "add-page-numbers-to-pdf": "đánh số trang pdf thêm số trang chèn số trang header footer logo pdf",
+ "unlock-pdf": "mở khóa pdf bỏ mật khẩu pdf gỡ mật khẩu xóa password pdf",
+ "pdf-to-excel": "chuyển pdf sang excel pdf sang xlsx sao kê ngân hàng sang excel pdf sang csv"
+}
