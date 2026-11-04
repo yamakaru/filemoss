@@ -27,7 +27,7 @@ ui_st=dropzone("application/pdf,.pdf",True,"Choose PDF files")+"""<div class='op
 <label for='lg'>Logo image, PNG or JPG (optional)</label><input id='lg' type='file' accept='image/png,image/jpeg,.png,.jpg,.jpeg'>
 <label for='lp'>Logo position</label>"""+POS("lp","tr")+"""
 <label for='lo'>Logo opacity: <output id='lov'>100</output>%</label><input id='lo' type='range' min='0' max='100' value='100'>
-<p class='hint'>{p} is always the total number of pages in the file. The first page you number gets the first number.</p>
+<p class='hint'>{p} is always the total number of pages in the file. Selected pages are numbered in a continuous sequence starting from the first number: with 1-3, 5, page 5 is labeled 4.</p>
 </div><button class='btn' id='go' type='button' disabled>Add page numbers</button>"""+PROG+PRIV
 js_st=COMMON+r"""var files=[],busy=false,run=0,fontB={},logoKey=null,logoPng=null;
 var MS={rbad:'Pages: "%s" is not a page or range. Use numbers like 1-3, 5.',rzero:'Pages: page numbers start at 1 ("%s").',rover:'Pages: "%s" is beyond the last page (%t).',start:'The first number must be a whole number from 0 to 99999.',size:'Font size must be between 6 and 72.',margin:'Margin must be between 0 and 50 mm.',tpl:'Type your custom text first.',of:'Page %n of %p',work:'Numbering file %n of %t…',done:'Done — %n file(s) numbered.',fail:'%s: not numbered.',font:'Loading fonts…',logo:'The logo image could not be read. Use a PNG or JPG file.'};
@@ -59,6 +59,7 @@ async function go(){if(busy)return;if(!files.length)return;var o={},err=null;
     if(cjk)fonts.push({pdf:await doc.embedFont(fontB['NotoSansJP-sub'],{subset:true}),fk:fontkit.create(fontB['NotoSansJP-sub'])});
     var img=lb?await doc.embedPng(lb):null;var mm=+mg*72/25.4;
     STAMP.apply(PDFLib,doc,{fonts:fonts,text:{tpl:tpl,pos:UI.$('#pos').value,size:fsz},header:hd,footer:ft,pages:pages,start:+st,margin:mm,logo:img?{img:img,pos:UI.$('#lp').value,w:30*72/25.4,opacity:+UI.$('#lo').value/100}:null});
+    for(var fi=0;fi<fonts.length;fi++)await subTag(fonts[fi].pdf,doc);
     var out=await doc.save();ok.push({name:f.name.replace(/\.pdf$/i,'')+'-numbered.pdf',blob:new Blob([out],{type:'application/pdf'}),note:pages.length+' / '+n})}
    catch(e){bad.push({f:f.name,m:e.message,msg:e.msg})}}
   if(tk!==run)return;pg.value=pg.max;UI.results(ok);
@@ -67,6 +68,9 @@ async function go(){if(busy)return;if(!files.length)return;var o={},err=null;
  }catch(e){if(tk!==run)return;if(e.code==='logo')UI.status(MS.logo,1);else{UI.status(FM.lib,1);retryBtn(go)}}
  finally{if(tk===run){busy=false;btn.disabled=false;pg.hidden=true}}}
 
+function subTag(F,doc){return F.embed().then(function(){var N=PDFLib.PDFName,c=doc.context,t0=c.lookup(F.ref),tag='';for(var i=0;i<6;i++)tag+=String.fromCharCode(65+Math.floor(Math.random()*26));
+ var nm=function(o){var v=o&&o.get(N.of('BaseFont'))||o&&o.get(N.of('FontName'));return v?v.decodeText().replace(/-\d+$/,''):''};var ps=tag+'+'+nm(t0);t0.set(N.of('BaseFont'),N.of(ps));
+ var cid=c.lookup(t0.get(N.of('DescendantFonts'))).get(0);cid=c.lookup(cid);cid.set(N.of('BaseFont'),N.of(ps));var fd=c.lookup(cid.get(N.of('FontDescriptor')));if(fd)fd.set(N.of('FontName'),N.of(ps))})}
 UI.$('#go').onclick=go;setTimeout(function(){L().catch(function(){})},1500);"""
 g_st="""<h2>How to add page numbers to a PDF</h2><ol><li>Choose one or more PDF files.</li><li>Pick a number format: <i>1, 2, 3</i>, <i>Page 1 of 10</i>, <i>1 / 10</i> or your own text with <code>{n}</code> (page number) and <code>{p}</code> (total pages), for example <code>Contract – page {n} / {p}</code>.</li><li>Choose one of six positions, the first number, the font size and the margin.</li><li>Optionally add a header, a footer or a logo, then click <b>Add page numbers</b> and download the PDF (or a ZIP for several files).</li></ol>
 <h2>How it works</h2><p>Each page is read in the direction you see it on screen. The tool measures the visible area of the page (its crop box), places the text the chosen margin away from the edge and turns it to match pages that are rotated 90°, 180° or 270°, so the number always sits upright where you expect it. Text is written with an embedded Noto Sans font, so accents such as ữ, ỷ, Ặ, é or ß and Japanese text display correctly. Only the characters you use are embedded, which keeps the file small.</p><p>Numbering rule: the first page you number gets the first number, and every following numbered page adds one. <code>{p}</code> is always the total number of pages in the file. The first number can be 0 or any whole number up to 99999.</p>

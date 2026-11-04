@@ -121,7 +121,7 @@ def units(soup):
         if s.parent.name in("title","[document]","html","head"):continue
         e=s.parent
         while e.name in INLINE and e.parent and all((isinstance(c,NavigableString)) or c.name in INLINE or c.name=="svg" for c in e.parent.children) and e.parent.name not in("body","header","footer"):e=e.parent
-        if e not in found:found.append(e)
+        if not any(e is x for x in found):found.append(e)  # identity: bs4 Tag == compares content, so duplicate <option>s were skipped (FM-02)
     # drop units nested in other units
     fs=set(map(id,found));return [e for e in found if not any(id(p) in fs for p in e.parents)]
 def inner(e):return e.decode_contents()
