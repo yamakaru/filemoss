@@ -33,7 +33,7 @@ js_st=COMMON+r"""var files=[],busy=false,run=0,fontB={},logoKey=null,logoPng=nul
 var MS={rbad:'Pages: "%s" is not a page or range. Use numbers like 1-3, 5.',rzero:'Pages: page numbers start at 1 ("%s").',rover:'Pages: "%s" is beyond the last page (%t).',start:'The first number must be a whole number from 0 to 99999.',size:'Font size must be between 6 and 72.',margin:'Margin must be between 0 and 50 mm.',tpl:'Type your custom text first.',of:'Page %n of %p',work:'Numbering file %n of %t…',done:'Done — %n file(s) numbered.',fail:'%s: not numbered.',font:'Loading fonts…',logo:'The logo image could not be read. Use a PNG or JPG file.'};
 function libs(){return within(Promise.all([ld('/assets/pdf-lib.min.js'),ld('/assets/fontkit.umd.min.js'),ld('/assets/stamp.js')]))}
 var ready=null;function L(){return ready||(ready=libs().then(function(){return font('NotoSans-sub')},function(e){ready=null;throw e}))}
-function font(n){if(fontB[n])return Promise.resolve(fontB[n]);return within(fetch('/assets/'+n+'.ttf'+(tries?'?r='+tries:'')).then(function(r){if(!r.ok)throw new Error('lib');return r.arrayBuffer()})).then(function(b){return fontB[n]=new Uint8Array(b)})}
+function font(n){if(fontB[n])return Promise.resolve(fontB[n]);return within(fetch('/assets/'+n+'.ttf?v=2'+(tries?'&r='+tries:'')).then(function(r){if(!r.ok)throw new Error('lib');return r.arrayBuffer()})).then(function(b){return fontB[n]=new Uint8Array(b)})}
 UI.$('#fmt').onchange=function(){var c=this.value==='c';UI.$('#tpl').hidden=!c;UI.$('#tplL').hidden=!c};
 UI.$('#lo').oninput=function(){UI.$('#lov').textContent=this.value};
 UI.$('#lg').onchange=function(){logoKey=null;logoPng=null};
