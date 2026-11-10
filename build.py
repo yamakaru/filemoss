@@ -62,9 +62,38 @@ open(f"dist/{KEY}.txt","w").write(KEY)
 open("dist/404.html","w").write(open("dist/index.html").read())
 print(len(TOOLS),"tools built")
 
-# Host canonicalisation: *.pages.dev and www -> apex (301, path + query preserved)
+# Host canonicalisation: *.pages.dev and www -> apex (301, path + query preserved).
+# Exception: the IndexNow key file must return 200 on the same host (no redirect).
 TOOLSET=[d for d in os.listdir("dist") if os.path.exists(f"dist/{d}/index.html") and d not in ("about","privacy","contact")]
-open("dist/_worker.js","w").write(open("ev_worker.js").read()+"\nconst TOOLS=new Set("+json.dumps(sorted(TOOLSET))+");"+"""\nexport default{async fetch(req,env){const u=new URL(req.url),h=u.hostname,apex=new URL(SITE).hostname;if(h!==apex&&h!=='localhost'&&(h.endsWith('.pages.dev')||h==='www.'+apex)){return Response.redirect(SITE+u.pathname+u.search,301)}if(u.pathname==='/api/e')return ev(req,env,'filemoss','filemoss.com',TOOLS);if(u.pathname==='/api/usage')return usage(req,env,'filemoss');return env.ASSETS.fetch(req)}};""".replace("SITE+","'"+SITE+"'+").replace("new URL(SITE)","new URL('"+SITE+"')"))
+_worker=(
+    open("ev_worker.js").read()
+    +"\nconst TOOLS=new Set("+json.dumps(sorted(TOOLSET))+");"
+    +"\nconst INDEXNOW_PATH="+json.dumps("/"+KEY+".txt")+";"
+    +"\nconst INDEXNOW_KEY="+json.dumps(KEY)+";"
+    +"""
+export default{async fetch(req,env){
+  const u=new URL(req.url),h=u.hostname,apex=new URL('"""+SITE+"""').hostname;
+  if(h!==apex&&h!=='localhost'&&(h.endsWith('.pages.dev')||h==='www.'+apex)){
+    if(u.pathname===INDEXNOW_PATH){
+      try{
+        const asset=await env.ASSETS.fetch(req);
+        if(asset&&asset.status===200){
+          const headers=new Headers(asset.headers);
+          if(!(headers.get('content-type')||'').toLowerCase().startsWith('text/plain')) headers.set('content-type','text/plain; charset=utf-8');
+          return new Response(asset.body,{status:200,headers});
+        }
+      }catch(e){}
+      return new Response(INDEXNOW_KEY,{status:200,headers:{'content-type':'text/plain; charset=utf-8'}});
+    }
+    return Response.redirect('"""+SITE+"""'+u.pathname+u.search,301);
+  }
+  if(u.pathname==='/api/e')return ev(req,env,'filemoss','filemoss.com',TOOLS);
+  if(u.pathname==='/api/usage')return usage(req,env,'filemoss');
+  return env.ASSETS.fetch(req);
+}};
+"""
+)
+open("dist/_worker.js","w").write(_worker)
 import glob as _g,shutil as _sh
 _sh.copy("t.js","dist/t.js")
 for _f in _g.glob("dist/**/*.html",recursive=True):
