@@ -15,14 +15,14 @@ K.detectEnc=function(b){if(b[0]==0xef&&b[1]==0xbb&&b[2]==0xbf)return 'utf-8';if(
 K.decode=function(b,enc,nfc){var t=new TextDecoder(enc||'utf-8').decode(b),t0=t.match(/\uFFFD/g);
  t=t.replace(/^\uFEFF/,'');var bad=t0?t0.length:0;return {text:nfc!==false&&t.normalize?t.normalize('NFC'):t,bad:bad}};
 /* parse with quotes; stops after max records (preview/sniff). Returns array of arrays. */
-K.parse=function(s,d,max,prog){var rows=[],row=[],f='',i=0,n=s.length,c,q=false,lastP=0;max=max||1e12;
+K.parse=function(s,d,max,prog){var rows=[],row=[],f='',i=0,n=s.length,c,q=false,rq=false,lastP=0;max=max||1e12;/* rq: the record had a quoted field (T11-28) */
  while(i<n){c=s.charCodeAt(i);
   if(q){if(c===34){if(s.charCodeAt(i+1)===34){f+='"';i+=2;continue}q=false;i++;continue}var j=s.indexOf('"',i);if(j<0){f+=s.slice(i);i=n;continue}f+=s.slice(i,j);i=j;continue}
-  if(c===34&&f===''){q=true;i++;continue}
+  if(c===34&&f===''){q=true;rq=true;i++;continue}
   if(s[i]===d){row.push(f);f='';i++;continue}
-  if(c===13||c===10){row.push(f);f='';rows.push(row);row=[];i+=(c===13&&s.charCodeAt(i+1)===10)?2:1;if(rows.length>=max)return rows;if(prog&&i-lastP>2e6){lastP=i;prog(i/n)}continue}
+  if(c===13||c===10){row.push(f);f='';if(rq)row.q=1;rq=false;rows.push(row);row=[];i+=(c===13&&s.charCodeAt(i+1)===10)?2:1;if(rows.length>=max)return rows;if(prog&&i-lastP>2e6){lastP=i;prog(i/n)}continue}
   var k=i;while(k<n){var cc=s.charCodeAt(k);if(cc===13||cc===10||cc===34||s[k]===d)break;k++}if(k===i){f+=s[i];i++}else{f+=s.slice(i,k);i=k}}
- if(f!==''||row.length){row.push(f);rows.push(row)}
+ if(f!==''||row.length||rq){row.push(f);if(rq)row.q=1;rows.push(row)}
  while(rows.length&&rows[rows.length-1].length===1&&rows[rows.length-1][0]==='')rows.pop();return rows};
 /* delimiter: the candidate giving the most rows with the same field count (>1) in the first 30 records */
 K.sniff=function(s){var best=',',bs=-1,head=s.slice(0,65536);[',',';','\t','|'].forEach(function(d){var r=K.parse(head,d,30).filter(function(x){return x.length>1||x[0]!==''});if(r.length>1&&r.length<30)r=r;if(!r.length)return;
@@ -31,8 +31,8 @@ K.sniff=function(s){var best=',',bs=-1,head=s.slice(0,65536);[',',';','\t','|'].
 /* no delimiter found: one column (T11-12). U+0001 never occurs in text files */
 K.ONE='\u0001';/* T11-20: "almost UTF-8" = valid multibyte text with a few broken bytes -> read as UTF-8 and report the � count */
 K.nearU8=function(b){var c=b.length>65536?b.subarray(0,65536):b,t=new TextDecoder('utf-8').decode(c),r=0,v=0;for(var i=0;i<t.length;i++){var x=t.charCodeAt(i);if(x===0xfffd)r++;else if(x>=0x80)v++}return r>0&&v>=3*r};
-/* T11-23: in a one-column file a row made only of delimiters/spaces is an empty row (DR8), not the value "," */
-K.oneFix=function(rows,delim){if(delim===K.ONE)for(var i=0;i<rows.length;i++){var r=rows[i];if(r.length===1&&/[,;\t|]/.test(r[0])&&/^[\s,;\t|]+$/.test(r[0]))r[0]=''}return rows};
+/* T11-23: in a one-column file an unquoted row made only of delimiters/spaces is an empty row (DR8), not the value ",". T11-28: a quoted cell such as "," is a value */
+K.oneFix=function(rows,delim){if(delim===K.ONE)for(var i=0;i<rows.length;i++){var r=rows[i];if(r.length===1&&!r.q&&/[,;\t|]/.test(r[0])&&/^[\s,;\t|]+$/.test(r[0]))r[0]=''}return rows};
 /* encoding choice: o.force = the user picked this encoding for this file; else BOM/UTF-16/UTF-8, then almost-UTF-8, then the page-wide choice */
 K.pickEnc=function(b,o){var sure=K.detectEnc(b);if(o&&o.force&&o.enc)return {enc:o.enc,guess:sure===o.enc?0:1};if(sure)return {enc:sure,guess:0};if(K.nearU8(b))return {enc:'utf-8',guess:0,near:1};if(o&&o.enc)return {enc:o.enc,guess:1};return {enc:''}};K.delimOf=function(t){var d=K.sniff(t);if(d)return d;var h=t.slice(0,65536);return /[,;\t|]/.test(h)?K.ONE:','};
 /* OWASP CSV injection: cells starting with = + - @ tab CR (also full-width ＝＋－＠) get a leading apostrophe, except plain numbers */
@@ -59,8 +59,10 @@ function hnorm(h,ci){h=String(h).normalize?String(h).normalize('NFC'):String(h);
 K.merge=function(files,o){var cols=[],idx={},out=[],ragged=0,colsDiffer=0,srcName=o.srcName||'Source file';
  if(o.by==='pos'){var w=0;files.forEach(function(f){var hl=(f.rows[0]||[]).length;if(w&&hl!==w)colsDiffer++;w=Math.max(w,hl)});var H=(files[0].rows[0]||[]).slice();while(H.length<w)H.push('');out.push(o.src?H.concat([srcName]):H);
   files.forEach(function(f){for(var r=1;r<f.rows.length;r++){var a=f.rows[r].slice();if(a.length!==(f.rows[0]||[]).length)ragged++;while(a.length<w)a.push('');out.push(o.src?a.concat([f.name]):a)}});return {rows:out,ragged:ragged,colsDiffer:colsDiffer,n:out.length-1}}
- var orig={},used={};files.forEach(function(f){(f.rows[0]||[]).forEach(function(x){orig[hnorm(x,o.ci)]=1})});/* T11-21: a generated "Name (n)" never repeats a name that exists in any header */
- var maps=files.map(function(f){var h=f.rows[0]||[],seen={},m=[];h.forEach(function(x,j){var k=hnorm(x,o.ci),lab=hnorm(x,false);if(k===''){k='\u0000col'+(j+1);lab='Column '+(j+1)}if(seen[k]){var nth=++seen[k];while(orig[hnorm(lab+' ('+nth+')',o.ci)]||used[hnorm(lab+' ('+nth+')',o.ci)])nth++;seen[k]=nth;k=k+'\u0000'+nth;lab=lab+' ('+nth+')'}else seen[k]=1;if(!(k in idx)){idx[k]=cols.length;cols.push(lab);used[hnorm(lab,o.ci)]=1}m.push(idx[k])});return m});
+ var orig={},used={},last={};files.forEach(function(f){(f.rows[0]||[]).forEach(function(x){orig[hnorm(x,o.ci)]=1})});
+ /* T11-21/T11-27: the n-th occurrence of a header is the same column in every file (key = header + occurrence). A generated label "Name (n)" is made once per key and never repeats a name that exists in any header or another generated label */
+ var maps=files.map(function(f){var h=f.rows[0]||[],seen={},m=[];h.forEach(function(x,j){var k=hnorm(x,o.ci),lab=hnorm(x,false);if(k===''){k='\u0000col'+(j+1);lab='Column '+(j+1)}var occ=seen[k]=(seen[k]||0)+1,base=k;if(occ>1)k=base+'\u0000'+occ;
+  if(!(k in idx)){if(occ>1){var nth=Math.max(occ,(last[base]||1)+1);while(orig[hnorm(lab+' ('+nth+')',o.ci)]||used[hnorm(lab+' ('+nth+')',o.ci)])nth++;last[base]=nth;lab=lab+' ('+nth+')'}idx[k]=cols.length;cols.push(lab);used[hnorm(lab,o.ci)]=1}m.push(idx[k])});return m});
  var W=cols.length;out.push(o.src?cols.concat([srcName]):cols.slice());
  files.forEach(function(f,fi){var m=maps[fi];for(var r=1;r<f.rows.length;r++){var a=f.rows[r],o2=new Array(W);for(var c=0;c<W;c++)o2[c]='';if(a.length!==m.length)ragged++;
   for(var c2=0;c2<a.length;c2++){if(c2<m.length)o2[m[c2]]=a[c2];else{var ek='\u0000extra'+(c2-m.length+1);if(!(ek in idx)){idx[ek]=cols.length;cols.push('Extra '+(c2-m.length+1));out[0].splice(o.src?out[0].length-1:out[0].length,0,'Extra '+(c2-m.length+1))}o2[idx[ek]]=a[c2]}}

@@ -27,7 +27,7 @@
 "h041de58315616c82": "<a href=\"/jpg-to-pdf/\">JPG para PDF</a><a href=\"/pdf-to-jpg/\">PDF para JPG</a><a href=\"/merge-pdf/\">Juntar PDF</a><a href=\"/compress-pdf/\">Comprimir PDF</a><a href=\"/pdf-to-word/\">PDF para Word</a><a href=\"/image-compressor/\">Comprimir imagem</a><a class=\"cta\" href=\"/#tools\">Todas as ferramentas</a>",
 "h043ab5d1928e4d05": "Converter em imagens",
 "h04b38cf935ddb566": "Superior esquerdo",
-"h050871f567f0b362": "Arquivos UTF-8 (com ou sem BOM) e UTF-16, como o \"Texto Unicode\" do Excel, são detectados automaticamente. Arquivos mais antigos podem ser abertos como Windows-1252, Windows-1258 (vietnamita) ou Shift_JIS (Excel japonês); se um arquivo não for um UTF-8 válido, a ferramenta pede para você escolher e mostra uma visualização. Caracteres que não podem ser decodificados são contados e exibidos como , nunca removidos silenciosamente. O texto é normalizado para Unicode NFC, para que nomes vietnamitas correspondam entre arquivos. O delimitador (vírgula, ponto e vírgula, tabulação ou barra vertical) é detectado pelas linhas, então um arquivo separado por ponto e vírgula com vírgulas decimais como 1,5 é lido corretamente; você também pode defini-lo manualmente.",
+"h050871f567f0b362": "Arquivos UTF-8 (com ou sem BOM) e UTF-16, como o \"Texto Unicode\" do Excel, são detectados automaticamente. Arquivos mais antigos podem ser abertos como Windows-1252, Windows-1258 (vietnamita) ou Shift_JIS (Excel japonês); se um arquivo não for um UTF-8 válido, a ferramenta pede para você escolher e mostra uma visualização. Caracteres que não podem ser decodificados são contados e exibidos como �, nunca removidos silenciosamente. O texto é normalizado para Unicode NFC, para que nomes vietnamitas correspondam entre arquivos. O delimitador (vírgula, ponto e vírgula, tabulação ou barra vertical) é detectado pelas linhas, então um arquivo separado por ponto e vírgula com vírgulas decimais como 1,5 é lido corretamente; você também pode defini-lo manualmente.",
 "h051998e3a7276f54": "Verde = horário comercial (9h–17h), amarelo = 7h–9h ou 17h–21h, cinza = noite. O horário de verão é aplicado automaticamente para a data escolhida.",
 "h051df1d6c9526c8f": "<input id=\"nk\" type=\"checkbox\"/> Tratar caracteres de largura total e meia largura como iguais (NFKC)",
 "h053aa1d851d84866": "Português",
@@ -1315,7 +1315,7 @@
 "j756d1c29c03be498": " —\n",
 "j77dfd2135f4db726": "Cancelar",
 "j7911295d0973634d": "O Excel permite no máximo 1.048.576 linhas por planilha. Escolha a saída CSV para %n linhas.",
-"j79a35afc766e3132": "%s: %n caracteres não puderam ser decodificados e são mostrados como . Escolha outra codificação para corrigi-los.",
+"j79a35afc766e3132": "%s: %n caracteres não puderam ser decodificados e são mostrados como �. Escolha outra codificação para corrigi-los.",
 "j7aba5798c74f8767": " página(s) rotacionada(s)",
 "j7bf4e1e5eca73737": "Numerando arquivo %n de %t…",
 "j7c21d7168e495cda": "Dia de folga personalizado",
@@ -1633,5 +1633,6 @@
 "j88e1ec8f643d459b": "%s: não é um arquivo CSV, TSV ou Excel.",
 "j1a570d4a145301d7": "-duplicadas.",
 "ha1c672ceaace66d3": "Sim — grátis, sem cadastro e sem limites diários. O FileMoss nunca adiciona marca d'água própria — a única marca d'água é a que você define.",
-"j3468793eaead39f2": "%s: a codificação de texto não pôde ser detectada, então o arquivo foi lido como %e. Verifique se o texto está correto."
+"j3468793eaead39f2": "%s: a codificação de texto não pôde ser detectada, então o arquivo foi lido como %e. Verifique se o texto está correto.",
+"je52f9c87a1310ba5": "Algumas células tinham mais de %n caracteres, o limite do Excel, então o FileMoss as encurtou para %n caracteres no arquivo XLSX. Escolha a saída CSV para manter o texto completo."
 }

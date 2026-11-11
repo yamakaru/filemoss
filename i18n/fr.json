@@ -27,7 +27,7 @@
 "h041de58315616c82": "<a href=\"/jpg-to-pdf/\">JPG en PDF</a><a href=\"/pdf-to-jpg/\">PDF en JPG</a><a href=\"/merge-pdf/\">Fusionner PDF</a><a href=\"/compress-pdf/\">Compresser PDF</a><a href=\"/pdf-to-word/\">PDF en Word</a><a href=\"/image-compressor/\">Compresser image</a><a class=\"cta\" href=\"/#tools\">Tous les outils</a>",
 "h043ab5d1928e4d05": "Convertir en images",
 "h04b38cf935ddb566": "En haut à gauche",
-"h050871f567f0b362": "Les fichiers UTF-8 (avec ou sans BOM) et UTF-16, comme le « Texte Unicode » d'Excel, sont détectés automatiquement. Les fichiers plus anciens peuvent être ouverts en tant que Windows-1252, Windows-1258 (Vietnamien) ou Shift_JIS (Excel japonais) ; si un fichier n'est pas un UTF-8 valide, l'outil vous demande de choisir et affiche un aperçu. Les caractères qui ne peuvent pas être décodés sont comptés et affichés comme , et ne sont jamais supprimés silencieusement. Le texte est normalisé en Unicode NFC, de sorte que les noms vietnamiens correspondent entre les fichiers. Le délimiteur (virgule, point-virgule, tabulation ou barre verticale) est détecté à partir des lignes, de sorte qu'un fichier à point-virgule avec des virgules décimales comme 1,5 est lu correctement ; vous pouvez également le définir vous-même.",
+"h050871f567f0b362": "Les fichiers UTF-8 (avec ou sans BOM) et UTF-16, comme le « Texte Unicode » d'Excel, sont détectés automatiquement. Les fichiers plus anciens peuvent être ouverts en tant que Windows-1252, Windows-1258 (Vietnamien) ou Shift_JIS (Excel japonais) ; si un fichier n'est pas un UTF-8 valide, l'outil vous demande de choisir et affiche un aperçu. Les caractères qui ne peuvent pas être décodés sont comptés et affichés comme �, et ne sont jamais supprimés silencieusement. Le texte est normalisé en Unicode NFC, de sorte que les noms vietnamiens correspondent entre les fichiers. Le délimiteur (virgule, point-virgule, tabulation ou barre verticale) est détecté à partir des lignes, de sorte qu'un fichier à point-virgule avec des virgules décimales comme 1,5 est lu correctement ; vous pouvez également le définir vous-même.",
 "h051998e3a7276f54": "Vert = heures de bureau de 9h à 17h, jaune = 7h-9h ou 17h-21h, gris = nuit. L'heure d'été est appliquée automatiquement pour la date choisie.",
 "h051df1d6c9526c8f": "<input id=\"nk\" type=\"checkbox\"/> Traiter les caractères pleine chasse et demi-chasse comme identiques (NFKC)",
 "h053aa1d851d84866": "Português",
@@ -1315,7 +1315,7 @@
 "j756d1c29c03be498": " —\n",
 "j77dfd2135f4db726": "Annuler",
 "j7911295d0973634d": "Excel autorise au maximum 1 048 576 lignes par feuille. Choisissez la sortie CSV pour %n lignes.",
-"j79a35afc766e3132": "%s : %n caractères n'ont pas pu être décodés et s'affichent comme . Choisissez un autre encodage pour les corriger.",
+"j79a35afc766e3132": "%s : %n caractères n'ont pas pu être décodés et s'affichent comme �. Choisissez un autre encodage pour les corriger.",
 "j7aba5798c74f8767": " page(s) pivotée(s)",
 "j7bf4e1e5eca73737": "Numérotation du fichier %n sur %t…",
 "j7c21d7168e495cda": "Jour de congé personnalisé",
@@ -1633,5 +1633,6 @@
 "j88e1ec8f643d459b": "%s : ce n’est pas un fichier CSV, TSV ou Excel.",
 "j1a570d4a145301d7": "-doublons.",
 "ha1c672ceaace66d3": "Oui — gratuit sans inscription et sans limite quotidienne. FileMoss n’ajoute jamais son propre filigrane — le seul filigrane est celui que vous définissez.",
-"j3468793eaead39f2": "%s : l'encodage du texte n'a pas pu être détecté, il a donc été lu en %e. Vérifiez que le texte s'affiche correctement."
+"j3468793eaead39f2": "%s : l'encodage du texte n'a pas pu être détecté, il a donc été lu en %e. Vérifiez que le texte s'affiche correctement.",
+"je52f9c87a1310ba5": "Certaines cellules dépassaient %n caractères, la limite d'Excel ; FileMoss les a donc raccourcies à %n caractères dans le fichier XLSX. Choisissez la sortie CSV pour conserver le texte complet."
 }

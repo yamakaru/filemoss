@@ -27,7 +27,7 @@
 "h041de58315616c82": "<a href=\"/jpg-to-pdf/\">JPG ke PDF</a><a href=\"/pdf-to-jpg/\">PDF ke JPG</a><a href=\"/merge-pdf/\">Gabungkan PDF</a><a href=\"/compress-pdf/\">Kompres PDF</a><a href=\"/pdf-to-word/\">PDF ke Word</a><a href=\"/image-compressor/\">Kompres Gambar</a><a class=\"cta\" href=\"/#tools\">Semua Alat</a>",
 "h043ab5d1928e4d05": "Ubah ke gambar",
 "h04b38cf935ddb566": "Kiri atas",
-"h050871f567f0b362": "File UTF-8 (dengan atau tanpa BOM) dan UTF-16, seperti \"Unicode Text\" di Excel, akan dideteksi secara otomatis. File versi lama dapat dibuka sebagai Windows-1252, Windows-1258 (Vietnam) atau Shift_JIS (Excel Jepang); jika file bukan UTF-8 yang valid, alat ini meminta Anda untuk memilihnya dan menampilkan pratinjau. Karakter yang tidak dapat didekodekan akan dihitung dan ditampilkan sebagai , tidak pernah dihapus secara diam-diam. Teks dinormalisasi ke Unicode NFC, sehingga nama-nama Vietnam akan cocok di berbagai file. Tanda pemisah (koma, titik koma, tab, atau garis vertikal) dideteksi dari barisnya, jadi file dengan pemisah titik koma dan angka desimal dengan koma seperti 1,5 akan dibaca dengan benar; Anda juga bisa mengaturnya sendiri.",
+"h050871f567f0b362": "File UTF-8 (dengan atau tanpa BOM) dan UTF-16, seperti \"Unicode Text\" di Excel, akan dideteksi secara otomatis. File versi lama dapat dibuka sebagai Windows-1252, Windows-1258 (Vietnam) atau Shift_JIS (Excel Jepang); jika file bukan UTF-8 yang valid, alat ini meminta Anda untuk memilihnya dan menampilkan pratinjau. Karakter yang tidak dapat didekodekan akan dihitung dan ditampilkan sebagai �, tidak pernah dihapus secara diam-diam. Teks dinormalisasi ke Unicode NFC, sehingga nama-nama Vietnam akan cocok di berbagai file. Tanda pemisah (koma, titik koma, tab, atau garis vertikal) dideteksi dari barisnya, jadi file dengan pemisah titik koma dan angka desimal dengan koma seperti 1,5 akan dibaca dengan benar; Anda juga bisa mengaturnya sendiri.",
 "h051998e3a7276f54": "Hijau = jam kerja 9 pagi–5 sore, kuning = 7–9 pagi atau 5–9 malam, abu-abu = malam. Daylight saving time diterapkan otomatis untuk tanggal yang dipilih.",
 "h051df1d6c9526c8f": "<input id=\"nk\" type=\"checkbox\"/> Anggap karakter full-width dan half-width sama (NFKC)",
 "h053aa1d851d84866": "Português",
@@ -1315,7 +1315,7 @@
 "j756d1c29c03be498": " —\n",
 "j77dfd2135f4db726": "Batal",
 "j7911295d0973634d": "Excel hanya mengizinkan maksimal 1.048.576 baris per sheet. Pilih output CSV untuk %n baris.",
-"j79a35afc766e3132": "%s: %n karakter tidak dapat didekode dan ditampilkan sebagai . Pilih encoding lain untuk memperbaikinya.",
+"j79a35afc766e3132": "%s: %n karakter tidak dapat didekode dan ditampilkan sebagai �. Pilih encoding lain untuk memperbaikinya.",
 "j7aba5798c74f8767": " halaman diputar",
 "j7bf4e1e5eca73737": "Memberi nomor file %n dari %t…",
 "j7c21d7168e495cda": "Hari libur khusus",
@@ -1633,5 +1633,6 @@
 "j88e1ec8f643d459b": "%s: ini bukan file CSV, TSV, atau Excel.",
 "j1a570d4a145301d7": "-duplikat.",
 "ha1c672ceaace66d3": "Ya — gratis tanpa pendaftaran dan tanpa batas harian. FileMoss tidak pernah menambahkan watermark sendiri — satu-satunya watermark adalah yang Anda atur.",
-"j3468793eaead39f2": "%s: encoding teks tidak dapat dideteksi, jadi file dibaca sebagai %e. Periksa apakah teksnya sudah benar."
+"j3468793eaead39f2": "%s: encoding teks tidak dapat dideteksi, jadi file dibaca sebagai %e. Periksa apakah teksnya sudah benar.",
+"je52f9c87a1310ba5": "Beberapa sel lebih panjang dari %n karakter, batas Excel, sehingga FileMoss memendekkannya menjadi %n karakter di file XLSX. Pilih output CSV untuk menyimpan teks lengkap."
 }

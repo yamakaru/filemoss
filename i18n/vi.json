@@ -27,7 +27,7 @@
 "h041de58315616c82": "<a href=\"/jpg-to-pdf/\">JPG sang PDF</a><a href=\"/pdf-to-jpg/\">PDF sang JPG</a><a href=\"/merge-pdf/\">Ghép file PDF</a><a href=\"/compress-pdf/\">Nén PDF</a><a href=\"/pdf-to-word/\">PDF sang Word</a><a href=\"/image-compressor/\">Nén ảnh</a><a class=\"cta\" href=\"/#tools\">Tất cả công cụ</a>",
 "h043ab5d1928e4d05": "Chuyển thành ảnh",
 "h04b38cf935ddb566": "Trên bên trái",
-"h050871f567f0b362": "Các file UTF-8 (có hoặc không có BOM) và UTF-16, chẳng hạn như \"Unicode Text\" của Excel, được tự động phát hiện. Các file cũ hơn có thể được mở bằng bảng mã Windows-1252, Windows-1258 (tiếng Việt) hoặc Shift_JIS (Excel tiếng Nhật); nếu file không phải là UTF-8 hợp lệ, công cụ sẽ yêu cầu bạn chọn và hiển thị bản xem trước. Các ký tự không thể giải mã sẽ được đếm và hiển thị là , không bao giờ bị âm thầm xóa đi. Văn bản được chuẩn hóa về Unicode NFC, để các tên tiếng Việt khớp nhau giữa các file. Dấu phân cách (dấu phẩy, dấu chấm phẩy, tab hoặc gạch đứng) được tự động phát hiện từ các dòng, do đó file dùng dấu chấm phẩy với số thập phân dùng dấu phẩy như 1,5 sẽ được đọc chính xác; bạn cũng có thể tự cài đặt dấu phân cách.",
+"h050871f567f0b362": "Các file UTF-8 (có hoặc không có BOM) và UTF-16, chẳng hạn như \"Unicode Text\" của Excel, được tự động phát hiện. Các file cũ hơn có thể được mở bằng bảng mã Windows-1252, Windows-1258 (tiếng Việt) hoặc Shift_JIS (Excel tiếng Nhật); nếu file không phải là UTF-8 hợp lệ, công cụ sẽ yêu cầu bạn chọn và hiển thị bản xem trước. Các ký tự không thể giải mã sẽ được đếm và hiển thị là �, không bao giờ bị âm thầm xóa đi. Văn bản được chuẩn hóa về Unicode NFC, để các tên tiếng Việt khớp nhau giữa các file. Dấu phân cách (dấu phẩy, dấu chấm phẩy, tab hoặc gạch đứng) được tự động phát hiện từ các dòng, do đó file dùng dấu chấm phẩy với số thập phân dùng dấu phẩy như 1,5 sẽ được đọc chính xác; bạn cũng có thể tự cài đặt dấu phân cách.",
 "h051998e3a7276f54": "Màu xanh lá = 9:00 sáng – 5:00 chiều (giờ làm việc), màu vàng = 7:00–9:00 sáng hoặc 5:00–9:00 tối, màu xám = ban đêm. Giờ tiết kiệm ánh sáng ban ngày (Daylight saving time) được tự động áp dụng cho ngày đã chọn.",
 "h051df1d6c9526c8f": "<input id=\"nk\" type=\"checkbox\"/> Coi ký tự toàn góc và bán góc là như nhau (NFKC)",
 "h053aa1d851d84866": "Português",
@@ -1315,7 +1315,7 @@
 "j756d1c29c03be498": " —\n",
 "j77dfd2135f4db726": "Hủy",
 "j7911295d0973634d": "Excel cho phép tối đa 1.048.576 dòng mỗi sheet. Hãy chọn xuất ra CSV cho %n dòng.",
-"j79a35afc766e3132": "%s: không thể giải mã %n ký tự và chúng đang hiển thị là . Hãy chọn bảng mã khác để khắc phục.",
+"j79a35afc766e3132": "%s: không thể giải mã %n ký tự và chúng đang hiển thị là �. Hãy chọn bảng mã khác để khắc phục.",
 "j7aba5798c74f8767": " trang đã xoay",
 "j7bf4e1e5eca73737": "Đang đánh số file %n / %t…",
 "j7c21d7168e495cda": "Ngày nghỉ tùy chỉnh",
@@ -1633,5 +1633,6 @@
 "j88e1ec8f643d459b": "%s: đây không phải file CSV, TSV hay Excel.",
 "j1a570d4a145301d7": "-dong-trung.",
 "ha1c672ceaace66d3": "Có — miễn phí, không cần đăng ký và không giới hạn sử dụng hằng ngày. FileMoss không bao giờ tự chèn hình mờ của mình — hình mờ duy nhất là hình mờ do bạn đặt.",
-"j3468793eaead39f2": "%s: không thể nhận diện bảng mã nên đã đọc theo %e. Hãy kiểm tra chữ hiển thị có đúng không."
+"j3468793eaead39f2": "%s: không thể nhận diện bảng mã nên đã đọc theo %e. Hãy kiểm tra chữ hiển thị có đúng không.",
+"je52f9c87a1310ba5": "Một số ô dài hơn %n ký tự (giới hạn của Excel), nên FileMoss đã cắt còn %n ký tự trong tệp XLSX. Chọn xuất CSV để giữ nguyên toàn bộ nội dung."
 }

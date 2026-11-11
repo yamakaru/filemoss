@@ -27,7 +27,7 @@
 "h041de58315616c82": "<a href=\"/jpg-to-pdf/\">JPG in PDF umwandeln</a><a href=\"/pdf-to-jpg/\">PDF in JPG umwandeln</a><a href=\"/merge-pdf/\">PDF zusammenfügen</a><a href=\"/compress-pdf/\">PDF komprimieren</a><a href=\"/pdf-to-word/\">PDF in Word</a><a href=\"/image-compressor/\">Bilder komprimieren</a><a class=\"cta\" href=\"/#tools\">Alle Tools</a>",
 "h043ab5d1928e4d05": "In Bilder umwandeln",
 "h04b38cf935ddb566": "Oben links",
-"h050871f567f0b362": "UTF-8- (mit oder ohne BOM) und UTF-16-Dateien, wie z. B. Excels „Unicode-Text“, werden automatisch erkannt. Ältere Dateien können als Windows-1252, Windows-1258 (Vietnamesisch) oder Shift_JIS (Japanisches Excel) geöffnet werden; wenn eine Datei kein gültiges UTF-8 ist, fordert das Tool Sie zur Auswahl auf und zeigt eine Vorschau. Zeichen, die nicht dekodiert werden können, werden gezählt und als  angezeigt, niemals stillschweigend entfernt. Text wird auf Unicode NFC normalisiert, sodass vietnamesische Namen dateiübergreifend übereinstimmen. Das Trennzeichen (Komma, Semikolon, Tabulator oder Pipe) wird anhand der Zeilen erkannt, sodass eine Semikolon-Datei mit Dezimalkommas wie 1,5 korrekt gelesen wird; Sie können es auch selbst festlegen.",
+"h050871f567f0b362": "UTF-8- (mit oder ohne BOM) und UTF-16-Dateien, wie z. B. Excels „Unicode-Text“, werden automatisch erkannt. Ältere Dateien können als Windows-1252, Windows-1258 (Vietnamesisch) oder Shift_JIS (Japanisches Excel) geöffnet werden; wenn eine Datei kein gültiges UTF-8 ist, fordert das Tool Sie zur Auswahl auf und zeigt eine Vorschau. Zeichen, die nicht dekodiert werden können, werden gezählt und als � angezeigt, niemals stillschweigend entfernt. Text wird auf Unicode NFC normalisiert, sodass vietnamesische Namen dateiübergreifend übereinstimmen. Das Trennzeichen (Komma, Semikolon, Tabulator oder Pipe) wird anhand der Zeilen erkannt, sodass eine Semikolon-Datei mit Dezimalkommas wie 1,5 korrekt gelesen wird; Sie können es auch selbst festlegen.",
 "h051998e3a7276f54": "Grün = 9–17 Uhr Arbeitszeit, gelb = 7–9 Uhr oder 17–21 Uhr, grau = Nacht. Die Sommerzeit wird für das gewählte Datum automatisch berücksichtigt.",
 "h051df1d6c9526c8f": "<input id=\"nk\" type=\"checkbox\"/> Voll- und halbbreite Zeichen als gleich behandeln (NFKC)",
 "h053aa1d851d84866": "Português",
@@ -1315,7 +1315,7 @@
 "j756d1c29c03be498": " —\n",
 "j77dfd2135f4db726": "Abbrechen",
 "j7911295d0973634d": "Excel erlaubt maximal 1.048.576 Zeilen pro Blatt. Wählen Sie die CSV-Ausgabe für %n Zeilen.",
-"j79a35afc766e3132": "%s: %n Zeichen konnten nicht decodiert werden und werden als  angezeigt. Wählen Sie eine andere Codierung, um dies zu beheben.",
+"j79a35afc766e3132": "%s: %n Zeichen konnten nicht decodiert werden und werden als � angezeigt. Wählen Sie eine andere Codierung, um dies zu beheben.",
 "j7aba5798c74f8767": " Seite(n) gedreht",
 "j7bf4e1e5eca73737": "Nummeriere Datei %n von %t…",
 "j7c21d7168e495cda": "Benutzerdefinierter freier Tag",
@@ -1633,5 +1633,6 @@
 "j88e1ec8f643d459b": "%s: Das ist keine CSV-, TSV- oder Excel-Datei.",
 "j1a570d4a145301d7": "-duplikate.",
 "ha1c672ceaace66d3": "Ja – kostenlos, ohne Anmeldung und ohne tägliche Limits. FileMoss fügt nie ein eigenes Wasserzeichen hinzu – das einzige Wasserzeichen ist das, das Sie selbst festlegen.",
-"j3468793eaead39f2": "%s: Die Zeichencodierung konnte nicht erkannt werden, daher wurde die Datei als %e gelesen. Prüfen Sie, ob der Text richtig aussieht."
+"j3468793eaead39f2": "%s: Die Zeichencodierung konnte nicht erkannt werden, daher wurde die Datei als %e gelesen. Prüfen Sie, ob der Text richtig aussieht.",
+"je52f9c87a1310ba5": "Einige Zellen waren länger als %n Zeichen (das Excel-Limit), daher hat FileMoss sie in der XLSX-Datei auf %n Zeichen gekürzt. Wählen Sie CSV als Ausgabe, um den vollständigen Text zu behalten."
 }
