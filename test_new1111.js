@@ -77,5 +77,5 @@ await clk();s=await wait(/rows in/);ok(/1 duplicates removed/.test(s)&&/2 empty 
 // big
 let big=['id,name,city'];for(let i=0;i<200000;i++)big.push(`${i%150000},Tên ${i%150000},Hà Nội`);fs.writeFileSync(C+'/big.csv',big.join('\n'));
 await p.check('#nf');const t2=Date.now();await p.setInputFiles('#drop input',C+'/big.csv');await p.waitForTimeout(800);await clk();s=await wait(/rows in/,90000);ok(/200,000 rows in, 50,000 duplicates/.test(s),'DR10 200k '+(Date.now()-t2)+'ms '+s);
-ok(reqs.filter(u=>!/\/api\/e/.test(u)).length===0,'privacy: no non-GET requests '+reqs.join(','));ok(errs.length===0,'js errors '+errs.join(';'));
+{const x=reqs.filter(u=>!/\/api\/e(\?|$)|\/cdn-cgi\/rum/.test(u));ok(x.length===0,'privacy: no non-GET requests except /api/e (evtest) and Cloudflare RUM '+x.join(','))}ok(errs.length===0,'js errors '+errs.join(';'));
 console.log(bad?'FAILED':'ALL OK',(n-bad)+'/'+n);await b.close();process.exit(bad?1:0)})();
