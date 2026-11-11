@@ -2,16 +2,25 @@
 import warnings;from bs4 import MarkupResemblesLocatorWarning;warnings.filterwarnings("ignore",category=MarkupResemblesLocatorWarning)
 Usage: python3 i18n.py SITE_NAME BASE_URL [--translate]
  - Without --translate it only uses the cached translations in i18n/<lang>.json (fails on misses).
- - With --translate it fills misses via the Kie Gemini chat API (KIE_API_KEY)."""
+ - With --translate it fills misses via the Kie Gemini chat API (KIE_API_KEY). --translate requires --max-credits N:
+   the Kie balance is read before the run and after every batch; translation stops (cache saved, exit 3) before the spend reaches N.
+ - --estimate: no API call, no key needed. Prints missing strings/characters per language and kind plus projected credits, then exits.
+ Every --estimate/--translate run appends one row to $KIE_I18N_LOG (default /workspace/tasks/kie_i18n_log.csv). The key is never printed or logged."""
 import os,re,sys,json,hashlib,glob,html as H,concurrent.futures as cf,urllib.request,time
 from bs4 import BeautifulSoup,NavigableString,Comment
-SITE_NAME,SITE=sys.argv[1],sys.argv[2].rstrip("/");TRANSLATE="--translate" in sys.argv
+SITE_NAME,SITE=sys.argv[1],sys.argv[2].rstrip("/");TRANSLATE="--translate" in sys.argv;ESTIMATE="--estimate" in sys.argv
+MAXC=float(sys.argv[sys.argv.index("--max-credits")+1]) if "--max-credits" in sys.argv else None
+if TRANSLATE and MAXC is None:raise SystemExit("--translate requires --max-credits N (credit cap for this run)")
+LOG=os.environ.get("KIE_I18N_LOG","/workspace/tasks/kie_i18n_log.csv");CREDIT_URL="https://api.kie.ai/api/v1/chat/credit"
+RUN={"strings":0,"chars":0,"b0":None,"b1":None,"status":"ok","batches":0}
 LANGS={"es":"Español","pt":"Português","fr":"Français","de":"Deutsch","it":"Italiano","id":"Bahasa Indonesia","vi":"Tiếng Việt","ja":"日本語"}
 LNAME={"es":"Spanish (Latin American, neutral; e.g. 'concreto' not 'hormigón', 'calculadora de concreto', 'unir PDF', 'convertir JPG a PDF')","pt":"Brazilian Portuguese (e.g. 'calculadora de concreto', 'juntar PDF', 'converter JPG em PDF')","fr":"French (e.g. 'calcul béton', 'fusionner PDF', 'convertir JPG en PDF')","de":"German (e.g. 'Betonrechner', 'PDF zusammenfügen', 'JPG in PDF umwandeln')","it":"Italian (e.g. 'calcolo calcestruzzo', 'unire PDF', 'convertire JPG in PDF')","id":"Indonesian (e.g. 'kalkulator beton', 'gabungkan PDF', 'ubah JPG ke PDF')","vi":"Vietnamese (e.g. 'tính khối lượng bê tông', 'ghép file PDF', 'chuyển JPG sang PDF')","ja":"Japanese (e.g. 'コンクリート計算', 'PDF結合', 'JPG PDF 変換')"}
 ALL=["en"]+list(LANGS)
 CTX={"PorchMath":"PorchMath, a free home-improvement material calculator website (concrete, paint, flooring...). Measurements stay in US units (ft, in, sq ft, cu yd, lb, gallons) because formulas depend on them; keep unit abbreviations as-is.",
 "FileMoss":"FileMoss, a free private browser-based office/file tools website (PDF merge, image converters, OCR, calculators)."}[SITE_NAME]
 D="dist";os.makedirs("i18n",exist_ok=True)
+TERMS=open("i18n_terms.txt",encoding="utf-8").read().strip() if os.path.exists("i18n_terms.txt") else ""
+if TERMS:CTX=CTX+" "+TERMS
 CACHE={l:(json.load(open(f"i18n/{l}.json")) if os.path.exists(f"i18n/{l}.json") else {}) for l in LANGS}
 def hk(s):return hashlib.sha1(s.encode()).hexdigest()[:16]
 INLINE={"a","b","i","em","strong","span","small","code","u","sup","sub","br","kbd","abbr","mark","s"}
@@ -47,6 +56,25 @@ def esc_for(q,s):
     s=s.replace("\\","\\\\") if False else s
     return s.replace(q,"\\"+q).replace("\n","\\n")
 def unesc(q,body):return body.replace("\\"+q,q).replace("\\n","\n")
+# ---------- Kie budget (F1)
+def balance():
+    r=urllib.request.Request(CREDIT_URL,headers={"Authorization":"Bearer "+os.environ["KIE_API_KEY"]})
+    return float(json.load(urllib.request.urlopen(r,timeout=30))["data"])
+def log_run(mode,langs):
+    import csv,datetime
+    t=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=7))).strftime("%Y-%m-%d %H:%M:%S +07")
+    new=not os.path.exists(LOG);os.makedirs(os.path.dirname(LOG) or ".",exist_ok=True)
+    with open(LOG,"a",newline="",encoding="utf-8") as f:
+        w=csv.writer(f)
+        if new:w.writerow(["time_asia_saigon","repo","mode","langs","strings","chars","balance_before","balance_after","credits_used","max_credits","status"])
+        b0,b1=RUN["b0"],RUN["b1"];w.writerow([t,SITE_NAME,mode,"+".join(langs),RUN["strings"],RUN["chars"],"" if b0 is None else b0,"" if b1 is None else b1,"" if b0 is None or b1 is None else round(b0-b1,2),"" if MAXC is None else MAXC,RUN["status"]])
+class BudgetStop(Exception):pass
+# Projection used by --estimate: tokens ~ chars/3.5; input = source + ~600 prompt tokens per request; output = 1.3 x source
+# tokens, times (1 + THINK) for model reasoning tokens. THINK=2 is calibrated on the 11/11 runs (see task notes).
+THINK=2.0
+def project(chars,reqs):
+    tok=chars/3.5;inp=tok+600*reqs;out=tok*1.3*(1+THINK)
+    return inp*100/1e6+out*700/1e6
 # ---------- LLM
 def llm(prompt,tries=4):
     for a in range(tries):
@@ -84,6 +112,8 @@ def fill(lang,need):
     miss={k:v for k,v in need.items() if k not in CACHE[lang]}
     if not miss:return
     if not TRANSLATE:raise SystemExit(f"{lang}: {len(miss)} untranslated strings; run with --translate")
+    RUN["strings"]+=len(miss);RUN["chars"]+=sum(len(v[1]) for v in miss.values())
+    if RUN["b0"] is None:RUN["b0"]=RUN["b1"]=balance()
     for attempt in range(3):
         miss={k:v for k,v in need.items() if k not in CACHE[lang]}
         if not miss:break
@@ -95,12 +125,27 @@ def fill(lang,need):
                 if len(cur)>=(40 if attempt==0 else 8) or size>6000:jobs.append((kind,cur));cur=[];size=0
             if cur:jobs.append((kind,cur))
         print(lang,"attempt",attempt,len(miss),"strings",len(jobs),"requests",flush=True)
-        with cf.ThreadPoolExecutor(10) as ex:
-            futs=[ex.submit(translate_batch,lang,{k:miss[k][1] for k in ks},kind) for kind,ks in jobs]
-            for f in cf.as_completed(futs):
+        # Budget-aware scheduling: the first batch runs alone to measure cost; afterwards a batch is only started while
+        # spent + average batch cost x (running batches + 1) stays below --max-credits, so the cap is not crossed.
+        stop=False;done=0;queue=list(jobs);running={};ex=cf.ThreadPoolExecutor(4)
+        while queue or running:
+            spent=RUN["b0"]-RUN["b1"];avg=spent/RUN["batches"] if RUN["batches"] else None
+            while queue and not stop and len(running)<(4 if RUN["batches"] else 1):
+                if avg is not None and spent+avg*(len(running)+1)>=MAXC:stop=True;break
+                kind,ks=queue.pop(0);running[ex.submit(translate_batch,lang,{k:miss[k][1] for k in ks},kind)]=1
+            if not running:break
+            fin,_=cf.wait(list(running),return_when=cf.FIRST_COMPLETED)
+            for f in fin:
+                running.pop(f)
                 try:CACHE[lang].update(f.result())
                 except Exception as e:print("batch fail",e)
+                done+=1;RUN["batches"]+=1
+            RUN["b1"]=balance()
+        if stop:print(f"BUDGET STOP: spent {RUN['b0']-RUN['b1']:.2f} of {MAXC} credits; {len(queue)} batches not started",flush=True)
+        ex.shutdown(wait=True)
         json.dump(CACHE[lang],open(f"i18n/{lang}.json","w"),ensure_ascii=False,indent=0,sort_keys=True)
+        RUN["b1"]=balance()
+        if stop or RUN["b0"]-RUN["b1"]>=MAXC:RUN["status"]="budget_stop";raise BudgetStop()
     left=[v for k,v in need.items() if k not in CACHE[lang]]
     if left:
         print(lang,"UNTRANSLATED (kept English):",len(left));[print("  ",x[0],x[1][:100]) for x in left[:10]]
@@ -197,7 +242,8 @@ def localize(html_src,lang,path):
         sc.string=apply_js(sc.string,lang)
     return add_common(str(soup),lang,path)
 if __name__=="__main__":
-    langs=[a for a in sys.argv[3:] if not a.startswith("--")] or list(LANGS)
+    _av=sys.argv[3:];_av=[a for j,a in enumerate(_av) if not(j and _av[j-1]=="--max-credits")]
+    langs=[a for a in _av if not a.startswith("--")] or list(LANGS)
     P=pages();src={p:open(f"{D}/{p}").read() for p in P}
     need={}
     for p in P:need_for_page(src[p],need)
@@ -205,7 +251,22 @@ if __name__=="__main__":
     for b,js in ext.items():
         for a,c,r in collect_js(js):s=unesc(r[0],r[1:-1]);need["j"+hk(s)]=("js",s)
     print(len(P),"pages",len(need),"unique strings")
-    for lang in langs:fill(lang,need)
+    if ESTIMATE:
+        tot=0
+        for lang in langs:
+            miss={k:v for k,v in need.items() if k not in CACHE[lang]};row=[]
+            for kind in ("html","text","js"):
+                m=[v[1] for v in miss.values() if v[0]==kind];row.append(f"{kind} {len(m)} strings/{sum(map(len,m))} chars")
+            ch=sum(len(v[1]) for v in miss.values());reqs=sum(1 for _ in range(0,len(miss),40))+3;cr=project(ch,reqs) if miss else 0;tot+=cr
+            RUN["strings"]+=len(miss);RUN["chars"]+=ch
+            print(f"{lang}: {len(miss)} missing, {ch} chars ({'; '.join(row)}); projected ~{cr:.1f} credits")
+        print(f"TOTAL: {RUN['strings']} strings, {RUN['chars']} chars, projected ~{tot:.1f} credits (no API call made)")
+        RUN["status"]=f"estimate~{tot:.1f}";log_run("estimate",langs);sys.exit(0)
+    try:
+        for lang in langs:fill(lang,need)
+    except BudgetStop:
+        log_run("translate",langs);print(f"stopped by --max-credits {MAXC}: used {RUN['b0']-RUN['b1']:.2f} credits; partial cache saved");sys.exit(3)
+    if TRANSLATE:log_run("translate",langs);print(f"Kie credits used: {(RUN['b0'] or 0)-(RUN['b1'] or 0):.2f} (balance {RUN['b1']})")
     for lang in langs:
         for p in P:
             o=f"{D}/{lang}/{p}";os.makedirs(os.path.dirname(o),exist_ok=True)
