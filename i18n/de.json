@@ -1142,7 +1142,7 @@
 "hfa27ba52fb8d4713": "Kann ein Wasserzeichen entfernt werden?",
 "hfa40dbe8d598ab62": "Geben Sie den Wasserzeichen-Text ein, zum Beispiel <i>ENTWURF</i>, <i>VERTRAULICH</i> oder <i>BẢN NHÁP – 社外秘</i>, oder wechseln Sie zu <b>Bild</b> und wählen Sie ein PNG- oder JPG-Logo aus.",
 "hfa9aceafc0e537ad": "<b>Wir erraten, knacken oder erzwingen niemals Passwörter.</b> Jeder Klick macht genau einen Versuch mit dem eingegebenen Passwort. Es gibt keine Passwortliste und keine Wiederherstellungsfunktion.",
-"hfb8827133ff57dbd": "<b>XLSX</b> behält Werte wie 0912345678, 00123, 16-stellige Kontonummern, 1E5 oder 04/11/2026 genau wie geschrieben bei (als Text gespeichert); nur reine Zahlen werden als Zahlen gespeichert. Excel erlaubt maximal 1,048,576 Zeilen pro Blatt.",
+"hfb8827133ff57dbd": "<b>XLSX</b> behält Werte wie 0912345678, 00123, 16-stellige Kontonummern, 1E5 oder 04/11/2026 genau wie geschrieben bei (als Text gespeichert); nur reine Zahlen werden als Zahlen gespeichert. Excel erlaubt maximal 1.048.576 Zeilen pro Blatt.",
 "hfb935908352c8ad5": "Logo-Deckkraft: <output id=\"lov\">100</output>%",
 "hfba48ae9414fb7b0": "2 Tools →",
 "hfbc451ee02530f91": "Sind QR-Codes für die kommerzielle Nutzung kostenlos?",
@@ -1286,7 +1286,7 @@
 "j586d71d0b4d87012": "Predictor",
 "j5aa865c442efc31a": "Die Drehung muss eine Zahl von −360 bis 360 sein.",
 "j5ad5212e5a0cd873": "Das Lesen dieser PDF kommt nicht voran, daher wurde die Umwandlung abgebrochen. Versuchen Sie es erneut oder verwenden Sie eine kleinere oder neu gespeicherte Kopie der PDF.",
-"j5be3ec05264ccbfc": "Einige Zellen sind länger als 32,767 Zeichen, das Excel-Limit; Excel wird sie abschneiden.",
+"j5be3ec05264ccbfc": "Einige Zellen sind länger als 32.767 Zeichen, das Excel-Limit; Excel wird sie abschneiden.",
 "j5cd80f709c9c8fd7": "Zu viele Daten für einen QR-Code.",
 "j5df29b80b97dab81": "%d",
 "j5eb32f00eebe43cc": "%r Zeilen aus %f Dateien in %c Spalten zusammengeführt.",
@@ -1314,7 +1314,7 @@
 "j7531cd5a7b05d73c": "aăâeêioôơuưyAĂÂEÊIOÔƠUƯY",
 "j756d1c29c03be498": " —\n",
 "j77dfd2135f4db726": "Abbrechen",
-"j7911295d0973634d": "Excel erlaubt maximal 1,048,576 Zeilen pro Blatt. Wählen Sie die CSV-Ausgabe für %n Zeilen.",
+"j7911295d0973634d": "Excel erlaubt maximal 1.048.576 Zeilen pro Blatt. Wählen Sie die CSV-Ausgabe für %n Zeilen.",
 "j79a35afc766e3132": "%s: %n Zeichen konnten nicht decodiert werden und werden als  angezeigt. Wählen Sie eine andere Codierung, um dies zu beheben.",
 "j7aba5798c74f8767": " Seite(n) gedreht",
 "j7bf4e1e5eca73737": "Nummeriere Datei %n von %t…",
@@ -1629,5 +1629,8 @@
 "tf7bbff3df29f2c5b": "Von Websites gespeicherte WEBP-Bilder in JPG umwandeln, damit sie überall funktionieren. Stapelverarbeitung direkt im Browser; 100% privat.",
 "tf7ea752dc97acdd1": "PDF entsperren",
 "tf8f09835840501a6": "FileMoss",
-"tfc5919c4ffc73616": "Kostenloser E-Mail-Signatur-Generator für Gmail & Outlook"
+"tfc5919c4ffc73616": "Kostenloser E-Mail-Signatur-Generator für Gmail & Outlook",
+"j88e1ec8f643d459b": "%s: Das ist keine CSV-, TSV- oder Excel-Datei.",
+"j1a570d4a145301d7": "-duplikate.",
+"ha1c672ceaace66d3": "Ja – kostenlos, ohne Anmeldung und ohne tägliche Limits. FileMoss fügt nie ein eigenes Wasserzeichen hinzu – das einzige Wasserzeichen ist das, das Sie selbst festlegen."
 }

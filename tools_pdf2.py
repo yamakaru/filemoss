@@ -9,7 +9,7 @@ function encHtml(){return DK.esc(FM.enc)+" <a href='"+lp('/unlock-pdf/')+"'>"+DK
 function stHtml(h,err){var s=UI.$('#status');s.innerHTML=h;s.className='status'+(err?' err':'')}
 var tries=0;function ld(src){return new Promise(function(ok,no){var u=src+(tries?(src.indexOf('?')<0?'?':'&')+'r='+tries:'');var s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=function(){s.remove();no(new Error('lib'))};document.head.appendChild(s)})}
 function within(p,ms){return new Promise(function(ok,no){var t=setTimeout(function(){no(new Error('lib'))},window.FM_TIMEOUT||ms||60000);p.then(function(v){clearTimeout(t);ok(v)},function(e){clearTimeout(t);no(e)})})}
-function retryBtn(fn){var b=document.createElement('button');b.type='button';b.className='btn';b.textContent=FM.retry;b.onclick=function(){tries++;b.remove();fn()};UI.$('#out').appendChild(b)}
+function retryBtn(fn){var b=document.createElement('button');b.type='button';b.className='btn';b.textContent=FM.retry;b.onclick=function(){tries++;b.remove();UI.status('');fn()};UI.$('#out').appendChild(b)}
 function sniff(buf){if(!buf.length)return 'empty';var h=new TextDecoder('latin1').decode(buf.subarray(0,1024));return h.indexOf('%PDF-')<0?'notpdf':''}
 """
 # ---------------- add page numbers ----------------

@@ -41,6 +41,11 @@ await p.selectOption('#wm','t');
 await p.setInputFiles('#drop input',FX+'/vi5.pdf');for(const [r,e] of [['1-3,5',/Done/],['5-3',/Done/],['0',/start at 1/],['abc',/not a page/],['',/Done/]]){await p.fill('#rng',r);await clk();s=await wait(/Done|not|start/);ok(e.test(s),'WM12 '+r+' '+s)}
 // double click
 await p.fill('#rng','');await p.$eval('#status',e=>e.textContent='');await p.dblclick('#go');s=await wait(/Done/);ok((await p.$$('#out .fileout')).length===1,'WM18 one output');
+// T11-11: numeric inputs beside the sliders, >=44 px touch targets
+{const hs=await p.$$eval('#op,#opn,#sz,#szn,#cl',a=>a.map(e=>Math.round(e.getBoundingClientRect().height)));ok(hs.every(h=>h>=44),'T11-11 heights '+hs);
+await p.fill('#opn','55');ok(await p.$eval('#op',e=>e.value)==='55'&&/55/.test(await p.textContent('#opv')),'T11-11 number -> slider');
+await p.$eval('#sz',e=>{e.value=40;e.dispatchEvent(new Event('input'))});ok(await p.$eval('#szn',e=>e.value)==='40','T11-11 slider -> number');
+await p.fill('#opn','30');}
 // ---------- merge-csv
 const C=OUT+'/csv';fs.mkdirSync(C,{recursive:true});
 fs.writeFileSync(C+'/a.csv','\uFEFFid,Tên,SĐT\r\n1,Nguyễn Văn A,0912345678\r\n2,"Trần, B",00123\r\n');
@@ -63,6 +68,28 @@ await p.setInputFiles('#drop input',[C+'/a.csv',C+'/u16.txt']);await p.waitForTi
 await p.setInputFiles('#drop input',[C+'/w1252.csv']);await p.waitForTimeout(800);await clk();s=await wait(/Merged|encoding/);ok(/encoding could not be detected/.test(s),'MC3 ask enc '+s);
 await p.selectOption('#enc','windows-1252');await p.waitForTimeout(2000);await clk();s=await wait(/Merged|could/);ok(/Merged 4 rows/.test(s),'MC3 1252 '+s);f=await dl('#out .fileout button','e.csv');ok(fs.readFileSync(f,'utf8').includes('Café €'),'MC3 1252 text');
 await p.selectOption('#enc','');
+// ---------- round 2 regressions (Tester 11/11 vòng 1)
+const clr=async()=>{for(let k=0;k<20&&(await p.$$('#fl li .x')).length;k++)await p.click('#fl li:nth-child(1) .x')};
+await p.goto(base+'/merge-csv/?evtest=1');await p.selectOption('#fmt','csv');
+await p.setInputFiles('#drop input',[FX+'/m3_1258.csv',FX+'/m3_utf8_nguyen.csv']);await p.waitForTimeout(800);await p.selectOption('#enc','windows-1258');await p.waitForTimeout(2000);await clk();s=await wait(/Merged|could|encoding/);
+f=await dl('#out .fileout button','t1101a.csv');txt=fs.readFileSync(f,'utf8');ok(/Merged 3 rows/.test(s)&&txt.includes('3,Nguyễn')&&txt.includes('Đặng Thị Huế')&&!/Ă|á»|Ä/.test(txt)&&txt.split('\r\n')[0]==='\uFEFFid,Tên','T11-01 1258 + UTF-8 '+JSON.stringify(txt));
+await clr();await p.setInputFiles('#drop input',[FX+'/m3_1252.csv',FX+'/m1_a.csv']);await p.waitForTimeout(800);await p.selectOption('#enc','windows-1252');await p.waitForTimeout(2000);await clk();s=await wait(/Merged|could|encoding/);
+f=await dl('#out .fileout button','t1101b.csv');txt=fs.readFileSync(f,'utf8');ok(txt.includes('Café René')&&txt.includes('Nguyễn Văn An')&&txt.includes('€ 5')&&!/Ã|á»/.test(txt),'T11-01 1252 + UTF-8 '+JSON.stringify(txt.slice(0,200)));
+await p.selectOption('#enc','');await clr();
+await p.setInputFiles('#drop input',[FX+'/m8_a.csv',FX+'/m8_b.csv']);await p.waitForTimeout(800);await clk();s=await wait(/Merged|could/);f=await dl('#out .fileout button','t1105.csv');txt=fs.readFileSync(f,'utf8');
+ok(!/undefined/.test(txt)&&/Tên \(2\)/.test(txt.split('\r\n')[0]),'T11-05 duplicate header '+JSON.stringify(txt.split('\r\n')[0]));await clr();
+fs.writeFileSync(C+'/onecol2.csv','Ghi chú\nThêm, một dòng\n');await p.setInputFiles('#drop input',[FX+'/m5_onecol.csv',C+'/onecol2.csv']);await p.waitForTimeout(800);await clk();s=await wait(/Merged|could/);f=await dl('#out .fileout button','t1112.csv');txt=fs.readFileSync(f,'utf8');
+ok(!/Extra/.test(txt)&&txt.includes('"Xin chào, bạn khỏe không"')&&txt.includes('"Thêm, một dòng"')&&txt.split('\r\n')[0]==='\uFEFFGhi chú'&&!/Extra/.test(s),'T11-12 one column kept '+JSON.stringify(txt)+' '+s);await clr();
+await p.selectOption('#fmt','xlsx');await p.setInputFiles('#drop input',[FX+'/longcell.csv',FX+'/m1_a.csv']);await p.waitForTimeout(800);await clk();s=await wait(/Merged|could/);
+ok(/Merged/.test(s)&&/32,767 characters, the Excel limit/.test(s)&&!/could not be read/.test(s),'T11-03 merge xlsx long cell '+s);
+if(/Merged/.test(s)){f=await dl('#out .fileout button','t1103.xlsx');const L=sh(`python3 -c "import openpyxl;ws=openpyxl.load_workbook('${f}').active;print(max(len(str(c.value or '')) for r in ws.iter_rows() for c in r))"`).trim();ok(L==='32767','T11-03 cell cut to 32767 '+L)}
+await p.selectOption('#fmt','csv');await clr();
+await p.goto(base+'/vi/merge-csv/?evtest=1');await p.setInputFiles('#drop input',[FX+'/vi5.pdf',FX+'/m1_a.csv']);await p.waitForTimeout(800);await clk();s=await wait(/không phải|không thể|bảng mã/);ok(/không phải file CSV, TSV hay Excel/.test(s),'T11-13 vi merge pdf '+s);
+await p.goto(base+'/remove-duplicate-rows/?evtest=1');await p.setInputFiles('#drop input',FX+'/vi5.pdf');await p.waitForTimeout(800);await clk();s=await wait(/not a CSV|could|encoding/);ok(/vi5\.pdf: this is not a CSV, TSV or Excel file\./.test(s),'T11-13 dedupe pdf '+s);
+await p.selectOption('#fmt','xlsx').catch(()=>{});await p.setInputFiles('#drop input',FX+'/longcell.csv');await p.waitForTimeout(800);await clk();s=await wait(/rows in|could/);ok(/rows in/.test(s)&&!/could not be read/.test(s),'T11-03 dedupe xlsx long cell '+s);await p.selectOption('#fmt','csv').catch(()=>{});
+fs.writeFileSync(C+'/dupn.csv','a,b\n1,2\n1,2\n');await p.goto(base+'/vi/remove-duplicate-rows/?evtest=1');await p.setInputFiles('#drop input',C+'/dupn.csv');await p.waitForTimeout(800);await clk();await wait(/dòng/);
+{const nm=await p.$$eval('#out .fileout',a=>a.map(x=>x.textContent));ok(nm.some(t=>/dupn-da-xoa-trung\.csv/.test(t))&&nm.some(t=>/dupn-dong-trung\.csv/.test(t)),'T11-15 vi file names '+JSON.stringify(nm))}
+{const g=await p.content();ok(!/background worker/.test(g)&&/luồng chạy nền/.test(g)&&/200\.000/.test(g)&&/1\.048\.576/.test(g)&&!/1,048,576|200,000/.test(g),'T11-15 vi numbers/wording')}
 // ---------- remove duplicates
 let rows=['id,Tên,Email'];for(let i=0;i<880;i++)rows.push(`${i},Người ${i},u${i}@x.vn`);for(let i=0;i<120;i++){const j=i*7;rows.push(i%2?`${j},Người ${j},u${j}@x.vn`:`${j}, người ${j} ,U${j}@X.VN`)}
 fs.writeFileSync(C+'/d1000.csv',rows.join('\n'));
@@ -73,7 +100,7 @@ fs.writeFileSync(C+'/k.csv','k,v\nA,1\nB,2\nA,3\nA,4\n');await p.setInputFiles('
 await p.selectOption('#kp','last');await clk();await wait(/rows in/);f=await dl('#out .fileout:nth-child(1) button','kl.csv');ok(fs.readFileSync(f,'utf8').includes('B,2\r\nA,4'),'DR2 keep last '+JSON.stringify(fs.readFileSync(f,'utf8')));
 await p.selectOption('#kp','first');await clk();await wait(/rows in/);f=await dl('#out .fileout:nth-child(1) button','kf.csv');ok(fs.readFileSync(f,'utf8').includes('A,1\r\nB,2\r\n'),'DR2 keep first');
 fs.writeFileSync(C+'/six.csv','a\nNguyễn\n'+'Nguyễn'.normalize('NFD')+'\n,\n \nx\nX\n');await p.selectOption('#by','all');await p.setInputFiles('#drop input',C+'/six.csv');await p.waitForTimeout(600);await p.uncheck('#ci');
-await clk();s=await wait(/rows in/);ok(/1 duplicates removed/.test(s)&&/2 empty rows/.test(s),'DR4/DR8 '+s);await p.uncheck('#nf');await clk();s=await wait(/rows in/);ok(/0 duplicates/.test(s)&&/No duplicate/.test(s),'DR4 off/DR12 '+s);
+await clk();s=await wait(/rows in/);ok(/1 duplicates removed/.test(s)&&/1 empty rows/.test(s),'DR4/DR8 (one-column file: "," is a value since T11-12) '+s);await p.uncheck('#nf');await clk();s=await wait(/rows in/);ok(/0 duplicates/.test(s)&&/No duplicate/.test(s),'DR4 off/DR12 '+s);
 // big
 let big=['id,name,city'];for(let i=0;i<200000;i++)big.push(`${i%150000},Tên ${i%150000},Hà Nội`);fs.writeFileSync(C+'/big.csv',big.join('\n'));
 await p.check('#nf');const t2=Date.now();await p.setInputFiles('#drop input',C+'/big.csv');await p.waitForTimeout(800);await clk();s=await wait(/rows in/,90000);ok(/200,000 rows in, 50,000 duplicates/.test(s),'DR10 200k '+(Date.now()-t2)+'ms '+s);

@@ -42,7 +42,7 @@ open("dist/_headers","w").write("/*\n  Strict-Transport-Security: max-age=315360
 for k,v in TOOLS.items():
     c=v['cat'];rel="".join(card(x) for x in CATS[c] if x!=k)
     libs="".join(f"<script src='/assets/{l}'></script>" for l in v['libs'])
-    fq="".join(f"<details{' open' if j==0 else ''}><summary>{q}</summary><p>{a}</p></details>" for j,(q,a) in enumerate([(f"Is {v['h']} safe for confidential files?","Yes. It runs entirely inside your browser, so your files and text are never uploaded to a server."),(f"Is {v['h']} free?","Yes — free with no sign-up, no daily limits and no watermark."),("Does it work on my phone?","Yes. FileMoss tools work in current iPhone and Android browsers as well as on desktop.")]))
+    fq="".join(f"<details{' open' if j==0 else ''}><summary>{q}</summary><p>{a}</p></details>" for j,(q,a) in enumerate([(f"Is {v['h']} safe for confidential files?","Yes. It runs entirely inside your browser, so your files and text are never uploaded to a server."),(f"Is {v['h']} free?","Yes — free with no sign-up and no daily limits. FileMoss never adds its own watermark — the only watermark is the one you set." if k=="watermark-pdf" else "Yes — free with no sign-up, no daily limits and no watermark."),("Does it work on my phone?","Yes. FileMoss tools work in current iPhone and Android browsers as well as on desktop.")]))
     # S4: guide already has its own FAQ heading (always its last H2) -> no second "FAQ" H2; the shared FAQ items follow the guide
     # directly (before Related tools) and the section is labelled by the guide heading (no new strings)
     _dup="<h2>FAQ</h2>" in v['g']

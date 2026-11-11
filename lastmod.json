@@ -116,7 +116,7 @@
 "2026-10-30"
 ],
 "/de/merge-csv/": [
-"39ded3ea3c77cb4b7cf9b7d088d71874f31cceeec0a4eb411714589647de92fd",
+"8f37b01e72e39b1f05231e62ef252961c81dbab334505e30374e8ed532b53dcf",
 "2026-11-11"
 ],
 "/de/merge-pdf/": [
@@ -184,7 +184,7 @@
 "2026-11-11"
 ],
 "/de/watermark-pdf/": [
-"034dd1c0d529948f3d2a0f383690acb89c00a5f7986ce4b07b81dc81520f0b2f",
+"25022bb89d725d815462ee1b2f3b4f2ecd046290a82325b0ae4973d690152b01",
 "2026-11-11"
 ],
 "/de/webp-to-jpg/": [
@@ -292,7 +292,7 @@
 "2026-10-30"
 ],
 "/es/merge-csv/": [
-"74e26ab89dd113776ff2a92d7a2ad3e8b93d62a14be034b8c859ced4a7b70fac",
+"d927fec5d09d990b181321b87b1f46b0c0b96ed34816a096de0cfcc9ce4dd1f1",
 "2026-11-11"
 ],
 "/es/merge-pdf/": [
@@ -332,7 +332,7 @@
 "2026-11-11"
 ],
 "/es/remove-duplicate-rows/": [
-"8ec7b441de08cb561b50c17b8a2ce45d53eb43f37c7d66f5f05379561fa3f461",
+"65dcaa21d1642411af1786c2512fd2a76a3d85722d064e18af54f41af73aca47",
 "2026-11-11"
 ],
 "/es/rotate-pdf/": [
@@ -360,7 +360,7 @@
 "2026-11-11"
 ],
 "/es/watermark-pdf/": [
-"f207128018872c0e193216fe7a2a5bfbbc62648a224d8afe9577351f5f870a8a",
+"881e07cfb72ea33bf746aa7a10086cb9b4d11a7a64afe4a0d44d2099a4571dd8",
 "2026-11-11"
 ],
 "/es/webp-to-jpg/": [
@@ -456,7 +456,7 @@
 "2026-10-30"
 ],
 "/fr/merge-csv/": [
-"ba204d2a2a95b3cdf7abb3c270cbedf75d375277fcd6ef70a76d40595e37f5b4",
+"92f3066b3c4a8f2f93c9c8a043c0e5c558d0aa2c6b8eee904c037603c4ed581c",
 "2026-11-11"
 ],
 "/fr/merge-pdf/": [
@@ -496,7 +496,7 @@
 "2026-11-11"
 ],
 "/fr/remove-duplicate-rows/": [
-"30b602617d8a7e98052e5e27bc9a83847b76674b439f93ee86a12f8d77ab5a6f",
+"31aeac0df646f837d83105a249c5a821809047b2e5bdda15ba1fd73c474cc3e7",
 "2026-11-11"
 ],
 "/fr/rotate-pdf/": [
@@ -524,7 +524,7 @@
 "2026-11-11"
 ],
 "/fr/watermark-pdf/": [
-"b57c08a73c57ef85099d72f4e53ca1bdcb80397b3dcd6f1c641bcb7ff8b1d06d",
+"363ea0dfe6ea7610f09fdd24787596d4c1d86230d553ae0bf957dfa265e539bd",
 "2026-11-11"
 ],
 "/fr/webp-to-jpg/": [
@@ -628,7 +628,7 @@
 "2026-10-30"
 ],
 "/id/merge-csv/": [
-"982481c3d147dabb6dd60c13c95b456cde2e0a47585d00f4ba956bb70f5796b8",
+"b6ed61ac5a2f0331494bf394725d82e29b432747a06f89c15c8cf416f09c8f3b",
 "2026-11-11"
 ],
 "/id/merge-pdf/": [
@@ -668,7 +668,7 @@
 "2026-11-11"
 ],
 "/id/remove-duplicate-rows/": [
-"704e6e5b97bc7593d1895a5be0cc773db5cd3b2f1ac7feeb2784e4436dc9fbfd",
+"63c52d1a3e13ca8f4326531cc3589c78850d1e9d485b0034607bf629aa3f4aa3",
 "2026-11-11"
 ],
 "/id/rotate-pdf/": [
@@ -696,7 +696,7 @@
 "2026-11-11"
 ],
 "/id/watermark-pdf/": [
-"ac3083e6c9fcdc603db01f6a47d429e6f88ac324096f90d264356ae6b3bd6853",
+"21c941c0ac3418ab04a34456ab44df2362d0db2db227cfa8de616f874962720f",
 "2026-11-11"
 ],
 "/id/webp-to-jpg/": [
@@ -804,7 +804,7 @@
 "2026-10-30"
 ],
 "/it/merge-csv/": [
-"017c8a185feab0d18430f7914aa7b4c4c3f2c7f102f494cf2d8a8f28ea46a0f1",
+"5f8e476ad6d5fcb876377b47807a030b8fa48a46e96ad2518cebccbebc1b30f3",
 "2026-11-11"
 ],
 "/it/merge-pdf/": [
@@ -844,7 +844,7 @@
 "2026-11-11"
 ],
 "/it/remove-duplicate-rows/": [
-"77cf7bcef0fa040561b4eb1eff367085c4613df7e558da914e2c31cbc4dfc399",
+"87e22d6f5c7160efa9c92d1e3591708d906093feb56c0b6ea2251b8a25ea3723",
 "2026-11-11"
 ],
 "/it/rotate-pdf/": [
@@ -872,7 +872,7 @@
 "2026-11-11"
 ],
 "/it/watermark-pdf/": [
-"fe67bbdc2165873dcb772c768548e14432c4f4c39ca1cba263f1214fa0fde8bc",
+"f09c89b0c28b91ea8003c1ad245db19d98bb06f8697f93e9b235d7efbc23f686",
 "2026-11-11"
 ],
 "/it/webp-to-jpg/": [
@@ -1036,7 +1036,7 @@
 "2026-11-11"
 ],
 "/ja/watermark-pdf/": [
-"877ef04de9abdf4e27a26a355d977e7b738e573e7637d4483587a377eb5641df",
+"46b0ad1d78f72cedd992a9cdf4559795bed8c91244489d81ba21914708750278",
 "2026-11-11"
 ],
 "/ja/webp-to-jpg/": [
@@ -1180,7 +1180,7 @@
 "2026-10-30"
 ],
 "/pt/merge-csv/": [
-"d30d9e858e192e584a06fb35441a22a8ea16f80f77ab53ef65e0f5251cc3fc36",
+"94be89cf7ea69fd505ca92a3e5a6e70a0f707de2862195bbf61870f1648d8a75",
 "2026-11-11"
 ],
 "/pt/merge-pdf/": [
@@ -1220,7 +1220,7 @@
 "2026-11-11"
 ],
 "/pt/remove-duplicate-rows/": [
-"399ec63ead2ed6df43893a5618fa17b05adcc6bfb26e7401c120f80cc077614c",
+"386f7c7734c948ed35e8cfc2f113319066057fa7e063048c382df3524568a539",
 "2026-11-11"
 ],
 "/pt/rotate-pdf/": [
@@ -1248,7 +1248,7 @@
 "2026-11-11"
 ],
 "/pt/watermark-pdf/": [
-"d55b4b0cbb3749dc716cd8ec2cec38d29cb84d878166e34a2207ae89f4213aff",
+"f986e18908b41b943adb1912abfbc488f8be4f3a6c0fe449df3bb4f4692aab6e",
 "2026-11-11"
 ],
 "/pt/webp-to-jpg/": [
@@ -1376,7 +1376,7 @@
 "2026-10-30"
 ],
 "/vi/merge-csv/": [
-"75e43e40aecb308a6ab3f541f9b12aca45ec7f37bc936abd1d81fc9915ef7998",
+"34c7150bd0db241211263cf57dbaccd016b0556bfa2aaf9f0a7057b4ef841477",
 "2026-11-11"
 ],
 "/vi/merge-pdf/": [
@@ -1416,7 +1416,7 @@
 "2026-11-11"
 ],
 "/vi/remove-duplicate-rows/": [
-"49e849f017820012e972e98f5c507b6d58a62fd10a90b70ad96df414daf36fbe",
+"f6504c7f6ffebf2f392f288be817c0e5e54f85d8a6abc4b67f99be7c3e281ca8",
 "2026-11-11"
 ],
 "/vi/rotate-pdf/": [
@@ -1444,7 +1444,7 @@
 "2026-11-11"
 ],
 "/vi/watermark-pdf/": [
-"c4e504d09eda166e4fbb5755a3899de7bccf71109ee0b95a770f39e84988e10d",
+"a0f3600ad7df2b578591ee3ad158ed873602506342f24a18749c73137005a8c7",
 "2026-11-11"
 ],
 "/vi/webp-to-jpg/": [
@@ -1460,7 +1460,7 @@
 "2026-11-11"
 ],
 "/watermark-pdf/": [
-"85f681508b9442580606d1331356181a200313ab4ad3f44bc5196a6b61c9d77a",
+"c5a6ba1c36cd795d3e41ee8cfac10dd05f701dc5dea78f54923df1dfa3611afb",
 "2026-11-11"
 ],
 "/webp-to-jpg/": [

@@ -206,11 +206,19 @@ LCSS="<style>.lsw{position:relative;margin-left:auto;margin-right:4px}.lsw summa
 GLOBE='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'
 def switcher(cur,path):
     return f"<details class='lsw'><summary aria-label='Language'>{GLOBE}{cur.upper()}</summary><ul>"+"".join(f"<li><a hreflang='{l}' lang='{l}' href='{'' if l=='en' else '/'+l}{path}'{' aria-current=\"true\"' if l==cur else ''}>{'English' if l=='en' else LANGS[l]}</a></li>" for l in ALL)+"</ul></details><script>(function(){var q=location.search+location.hash;if(q)document.querySelectorAll('.lsw li a').forEach(function(a){a.href=a.getAttribute('href')+q})})()</script>"
+def strip_common(html_src):
+    """Undo add_common() on an already-processed English page (T11-02): drop hreflang links, the switcher CSS and the
+    language switcher, so --estimate/--translate on a built dist only count strings that are really missing."""
+    html_src=re.sub(r'(?:<link rel="alternate" hreflang="[^"]*" href="[^"]*">)+',"",html_src,count=1)
+    html_src=html_src.replace(LCSS,"",1)
+    return re.sub(r"<details class='lsw'>.*?</details>(?:<script>\(function\(\)\{var q=location\.search.*?</script>)?","",html_src,count=1,flags=re.S)
 def add_common(html_src,lang,path):
     html_src=html_src.replace("</head>",hreflang(path)+LCSS+"</head>",1)
     return re.sub(r"(<header class=['\"]top['\"]><div class=['\"]w['\"]>.*?</a>)",lambda m:m.group(1)+switcher(lang,path),html_src,count=1,flags=re.S)
+LD_H1={"/watermark-pdf/","/merge-csv/","/remove-duplicate-rows/"}
 def localize(html_src,lang,path):
     C=CACHE[lang];soup=BeautifulSoup(html_src,"html.parser")
+    h1=soup.find("h1");h1en=h1.get_text(" ",strip=True) if h1 else None
     soup.html["lang"]=lang
     if soup.title and soup.title.string:soup.title.string=C.get("t"+hk(soup.title.string),soup.title.string)
     for m in soup.find_all("meta"):
@@ -237,6 +245,9 @@ def localize(html_src,lang,path):
             j=json.loads(sc.string)
             for k in("name","description"):
                 if k in j:j[k]=C.get("t"+hk(j[k]),j[k])
+            # T11-09: WebApplication.name follows the translated H1 (same source string) on the 11/11 batch pages
+            if j.get("@type")=="WebApplication" and path in LD_H1 and h1 is not None and h1en and j.get("name")!=h1.get_text(" ",strip=True):
+                j["name"]=h1.get_text(" ",strip=True)
             if "url" in j:j["url"]=j["url"].replace(SITE,SITE+"/"+lang,1)
             j["inLanguage"]=lang;sc.string=json.dumps(j,ensure_ascii=False);continue
         sc.string=apply_js(sc.string,lang)
@@ -246,21 +257,25 @@ if __name__=="__main__":
     langs=[a for a in _av if not a.startswith("--")] or list(LANGS)
     P=pages();src={p:open(f"{D}/{p}").read() for p in P}
     need={}
-    for p in P:need_for_page(src[p],need)
+    done=sum(1 for p in P if "<details class='lsw'>" in src[p])
+    if done:print(f"note: {done} English pages already carry the language switcher (built dist); it is ignored when counting")
+    for p in P:need_for_page(strip_common(src[p]),need)
     ext={b:open(f"{D}/assets/{b}").read() for b in EXTJS if os.path.exists(f"{D}/assets/{b}")}
     for b,js in ext.items():
         for a,c,r in collect_js(js):s=unesc(r[0],r[1:-1]);need["j"+hk(s)]=("js",s)
     print(len(P),"pages",len(need),"unique strings")
     if ESTIMATE:
-        tot=0
+        tot=0;DUMP={}
         for lang in langs:
             miss={k:v for k,v in need.items() if k not in CACHE[lang]};row=[]
             for kind in ("html","text","js"):
                 m=[v[1] for v in miss.values() if v[0]==kind];row.append(f"{kind} {len(m)} strings/{sum(map(len,m))} chars")
             ch=sum(len(v[1]) for v in miss.values());reqs=sum(1 for _ in range(0,len(miss),40))+3;cr=project(ch,reqs) if miss else 0;tot+=cr
             RUN["strings"]+=len(miss);RUN["chars"]+=ch
+            if os.environ.get("I18N_DUMP"):DUMP[lang]={k:list(v) for k,v in miss.items()}
             print(f"{lang}: {len(miss)} missing, {ch} chars ({'; '.join(row)}); projected ~{cr:.1f} credits")
         print(f"TOTAL: {RUN['strings']} strings, {RUN['chars']} chars, projected ~{tot:.1f} credits (no API call made)")
+        if os.environ.get("I18N_DUMP"):json.dump(DUMP,open(os.environ["I18N_DUMP"],"w",encoding="utf-8"),ensure_ascii=False,indent=0)
         RUN["status"]=f"estimate~{tot:.1f}";log_run("estimate",langs);sys.exit(0)
     try:
         for lang in langs:fill(lang,need)
