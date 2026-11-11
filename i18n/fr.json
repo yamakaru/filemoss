@@ -1632,5 +1632,6 @@
 "tfc5919c4ffc73616": "Générateur de signature email gratuit pour Gmail et Outlook",
 "j88e1ec8f643d459b": "%s : ce n’est pas un fichier CSV, TSV ou Excel.",
 "j1a570d4a145301d7": "-doublons.",
-"ha1c672ceaace66d3": "Oui — gratuit sans inscription et sans limite quotidienne. FileMoss n’ajoute jamais son propre filigrane — le seul filigrane est celui que vous définissez."
+"ha1c672ceaace66d3": "Oui — gratuit sans inscription et sans limite quotidienne. FileMoss n’ajoute jamais son propre filigrane — le seul filigrane est celui que vous définissez.",
+"j3468793eaead39f2": "%s : l'encodage du texte n'a pas pu être détecté, il a donc été lu en %e. Vérifiez que le texte s'affiche correctement."
 }

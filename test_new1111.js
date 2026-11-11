@@ -84,8 +84,26 @@ await p.selectOption('#fmt','xlsx');await p.setInputFiles('#drop input',[FX+'/lo
 ok(/Merged/.test(s)&&/32,767 characters, the Excel limit/.test(s)&&!/could not be read/.test(s),'T11-03 merge xlsx long cell '+s);
 if(/Merged/.test(s)){f=await dl('#out .fileout button','t1103.xlsx');const L=sh(`python3 -c "import openpyxl;ws=openpyxl.load_workbook('${f}').active;print(max(len(str(c.value or '')) for r in ws.iter_rows() for c in r))"`).trim();ok(L==='32767','T11-03 cell cut to 32767 '+L)}
 await p.selectOption('#fmt','csv');await clr();
+// T11-20: per-file encoding + preview + guess warning
+await p.setInputFiles('#drop input',[FX+'/sjis_b.csv',FX+'/1258_b.csv',FX+'/m1_a.csv']);await p.waitForTimeout(800);await p.selectOption('#enc','shift_jis');await p.waitForTimeout(1500);
+ok((await p.$$('#fl .fenc')).length===2,'T11-20 two per-file encoding selects '+(await p.$$('#fl .fenc')).length);
+await p.selectOption('#fl li:nth-child(2) .fenc','windows-1258');await p.waitForTimeout(1500);
+{const t=await p.textContent('#fl li:nth-child(2)');ok(/Trần Quốc/.test(t)&&/read as Windows-1258/.test(t),'T11-20 per-file preview 1258 '+t.slice(0,300))}
+{const t=await p.textContent('#fl li:nth-child(1)');ok(/田中/.test(t)&&/read as Shift_JIS/.test(t),'T11-20 per-file preview sjis '+t.slice(0,300))}
+await clk();s=await wait(/Merged|could/);f=await dl('#out .fileout button','t1120a.csv');txt=fs.readFileSync(f,'utf8');
+ok(txt.includes('田中')&&txt.includes('Trần Quốc')&&txt.includes('Nguyễn Văn An')&&txt.split('\r\n')[0]==='\uFEFFid,名前,Tên,SĐT','T11-20 mixed SJIS+1258+UTF-8 '+JSON.stringify(txt));
+ok((s.match(/could not be detected, so it was read as/g)||[]).length===2,'T11-20 guess warning per undetected file '+s);
+await p.selectOption('#enc','');await clr();
+await p.setInputFiles('#drop input',[FX+'/utf8_onebad.csv',FX+'/1258_b.csv']);await p.waitForTimeout(1200);
+{const t=await p.textContent('#fl li:nth-child(1)');ok(/UTF-8/.test(t)&&/1 characters could not be decoded/.test(t),'T11-20 near-UTF-8 defaults to UTF-8 with � count '+t.slice(0,200))}
+await p.selectOption('#fl li:nth-child(2) .fenc','windows-1258');await p.waitForTimeout(1200);await clk();s=await wait(/Merged|could/);f=await dl('#out .fileout button','t1120c.csv');txt=fs.readFileSync(f,'utf8');
+ok(txt.includes('Nguyễn Văn Bé')&&txt.includes('Trần Quốc')&&/1 characters could not be decoded/.test(s),'T11-20 near-UTF-8 + 1258 '+JSON.stringify(txt)+' '+s);await clr();
+// T11-21 unique generated names
+fs.writeFileSync(C+'/dupx.csv','Tên\n5\n');await p.setInputFiles('#drop input',[FX+'/dup3.csv',C+'/dupx.csv']);await p.waitForTimeout(800);await clk();s=await wait(/Merged|could/);f=await dl('#out .fileout button','t1121.csv');{const h=fs.readFileSync(f,'utf8').split('\r\n')[0].replace('\uFEFF','').split(',');ok(new Set(h).size===h.length&&h.length===4&&h.includes('Tên (2)'),'T11-21 unique headers '+h)}
+await clr();
 await p.goto(base+'/vi/merge-csv/?evtest=1');await p.setInputFiles('#drop input',[FX+'/vi5.pdf',FX+'/m1_a.csv']);await p.waitForTimeout(800);await clk();s=await wait(/không phải|không thể|bảng mã/);ok(/không phải file CSV, TSV hay Excel/.test(s),'T11-13 vi merge pdf '+s);
 await p.goto(base+'/remove-duplicate-rows/?evtest=1');await p.setInputFiles('#drop input',FX+'/vi5.pdf');await p.waitForTimeout(800);await clk();s=await wait(/not a CSV|could|encoding/);ok(/vi5\.pdf: this is not a CSV, TSV or Excel file\./.test(s),'T11-13 dedupe pdf '+s);
+await p.setInputFiles('#drop input',FX+'/zip_named.csv');await p.waitForTimeout(800);await clk();s=await wait(/damaged|password|could|encoding/);ok(/zip_named\.csv: this Excel file is damaged or not a spreadsheet/.test(s),'T11-25 PK+junk '+s);
 await p.selectOption('#fmt','xlsx').catch(()=>{});await p.setInputFiles('#drop input',FX+'/longcell.csv');await p.waitForTimeout(800);await clk();s=await wait(/rows in|could/);ok(/rows in/.test(s)&&!/could not be read/.test(s),'T11-03 dedupe xlsx long cell '+s);await p.selectOption('#fmt','csv').catch(()=>{});
 fs.writeFileSync(C+'/dupn.csv','a,b\n1,2\n1,2\n');await p.goto(base+'/vi/remove-duplicate-rows/?evtest=1');await p.setInputFiles('#drop input',C+'/dupn.csv');await p.waitForTimeout(800);await clk();await wait(/dòng/);
 {const nm=await p.$$eval('#out .fileout',a=>a.map(x=>x.textContent));ok(nm.some(t=>/dupn-da-xoa-trung\.csv/.test(t))&&nm.some(t=>/dupn-dong-trung\.csv/.test(t)),'T11-15 vi file names '+JSON.stringify(nm))}
@@ -100,7 +118,7 @@ fs.writeFileSync(C+'/k.csv','k,v\nA,1\nB,2\nA,3\nA,4\n');await p.setInputFiles('
 await p.selectOption('#kp','last');await clk();await wait(/rows in/);f=await dl('#out .fileout:nth-child(1) button','kl.csv');ok(fs.readFileSync(f,'utf8').includes('B,2\r\nA,4'),'DR2 keep last '+JSON.stringify(fs.readFileSync(f,'utf8')));
 await p.selectOption('#kp','first');await clk();await wait(/rows in/);f=await dl('#out .fileout:nth-child(1) button','kf.csv');ok(fs.readFileSync(f,'utf8').includes('A,1\r\nB,2\r\n'),'DR2 keep first');
 fs.writeFileSync(C+'/six.csv','a\nNguyễn\n'+'Nguyễn'.normalize('NFD')+'\n,\n \nx\nX\n');await p.selectOption('#by','all');await p.setInputFiles('#drop input',C+'/six.csv');await p.waitForTimeout(600);await p.uncheck('#ci');
-await clk();s=await wait(/rows in/);ok(/1 duplicates removed/.test(s)&&/1 empty rows/.test(s),'DR4/DR8 (one-column file: "," is a value since T11-12) '+s);await p.uncheck('#nf');await clk();s=await wait(/rows in/);ok(/0 duplicates/.test(s)&&/No duplicate/.test(s),'DR4 off/DR12 '+s);
+await clk();s=await wait(/rows in/);ok(/1 duplicates removed/.test(s)&&/2 empty rows/.test(s),'DR4/DR8 (T11-23: "," row in a one-column file is empty) '+s);{const f6=await dl('#out .fileout:nth-child(1) button','six_out.csv');const t6=fs.readFileSync(f6,'utf8');ok(!t6.includes('","')&&/Nguyễn/.test(t6),'T11-23 no "," written '+JSON.stringify(t6))};await p.uncheck('#nf');await clk();s=await wait(/rows in/);ok(/0 duplicates/.test(s)&&/No duplicate/.test(s),'DR4 off/DR12 '+s);
 // big
 let big=['id,name,city'];for(let i=0;i<200000;i++)big.push(`${i%150000},Tên ${i%150000},Hà Nội`);fs.writeFileSync(C+'/big.csv',big.join('\n'));
 await p.check('#nf');const t2=Date.now();await p.setInputFiles('#drop input',C+'/big.csv');await p.waitForTimeout(800);await clk();s=await wait(/rows in/,90000);ok(/200,000 rows in, 50,000 duplicates/.test(s),'DR10 200k '+(Date.now()-t2)+'ms '+s);

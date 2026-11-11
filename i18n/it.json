@@ -1632,5 +1632,6 @@
 "tfc5919c4ffc73616": "Generatore firma email per Gmail e Outlook – Senza registrazione",
 "j88e1ec8f643d459b": "%s: non è un file CSV, TSV o Excel.",
 "j1a570d4a145301d7": "-duplicati.",
-"ha1c672ceaace66d3": "Sì — gratuito senza registrazione e senza limiti giornalieri. FileMoss non aggiunge mai una propria filigrana: l'unica filigrana è quella che imposti tu."
+"ha1c672ceaace66d3": "Sì — gratuito senza registrazione e senza limiti giornalieri. FileMoss non aggiunge mai una propria filigrana: l'unica filigrana è quella che imposti tu.",
+"j3468793eaead39f2": "%s: impossibile rilevare la codifica del testo, quindi è stato letto come %e. Controlla che il testo sia corretto."
 }

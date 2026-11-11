@@ -1632,5 +1632,6 @@
 "tfc5919c4ffc73616": "Kostenloser E-Mail-Signatur-Generator für Gmail & Outlook",
 "j88e1ec8f643d459b": "%s: Das ist keine CSV-, TSV- oder Excel-Datei.",
 "j1a570d4a145301d7": "-duplikate.",
-"ha1c672ceaace66d3": "Ja – kostenlos, ohne Anmeldung und ohne tägliche Limits. FileMoss fügt nie ein eigenes Wasserzeichen hinzu – das einzige Wasserzeichen ist das, das Sie selbst festlegen."
+"ha1c672ceaace66d3": "Ja – kostenlos, ohne Anmeldung und ohne tägliche Limits. FileMoss fügt nie ein eigenes Wasserzeichen hinzu – das einzige Wasserzeichen ist das, das Sie selbst festlegen.",
+"j3468793eaead39f2": "%s: Die Zeichencodierung konnte nicht erkannt werden, daher wurde die Datei als %e gelesen. Prüfen Sie, ob der Text richtig aussieht."
 }

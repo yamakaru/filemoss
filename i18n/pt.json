@@ -1632,5 +1632,6 @@
 "tfc5919c4ffc73616": "Gerador de Assinatura de Email Grátis para Gmail e Outlook – Sem Cadastro",
 "j88e1ec8f643d459b": "%s: não é um arquivo CSV, TSV ou Excel.",
 "j1a570d4a145301d7": "-duplicadas.",
-"ha1c672ceaace66d3": "Sim — grátis, sem cadastro e sem limites diários. O FileMoss nunca adiciona marca d'água própria — a única marca d'água é a que você define."
+"ha1c672ceaace66d3": "Sim — grátis, sem cadastro e sem limites diários. O FileMoss nunca adiciona marca d'água própria — a única marca d'água é a que você define.",
+"j3468793eaead39f2": "%s: a codificação de texto não pôde ser detectada, então o arquivo foi lido como %e. Verifique se o texto está correto."
 }

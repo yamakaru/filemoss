@@ -1632,5 +1632,6 @@
 "tfc5919c4ffc73616": "Generador de firmas de correo gratis para Gmail y Outlook – Sin registro",
 "j88e1ec8f643d459b": "%s: no es un archivo CSV, TSV ni Excel.",
 "j1a570d4a145301d7": "-duplicados.",
-"ha1c672ceaace66d3": "Sí, es gratis, sin necesidad de registrarse y sin límites diarios. FileMoss nunca añade su propia marca de agua: la única marca de agua es la que tú configuras."
+"ha1c672ceaace66d3": "Sí, es gratis, sin necesidad de registrarse y sin límites diarios. FileMoss nunca añade su propia marca de agua: la única marca de agua es la que tú configuras.",
+"j3468793eaead39f2": "%s: no se pudo detectar la codificación de texto, así que se leyó como %e. Revisa que el texto se vea bien."
 }
