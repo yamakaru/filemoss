@@ -2,3 +2,5 @@ node_modules/
 tests/out/
 dist/
 __pycache__/
+.indexnow_key
+monitor_log.csv

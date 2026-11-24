@@ -1,5 +1,5 @@
 """SEO post-processing on dist/ (runs last in build.py, after i18n.py and searchidx.py).
-S2 <lastmod> in sitemaps via lastmod.json · S3 BreadcrumbList (tool pages) + Organization (home pages) JSON-LD
+S2 <lastmod> in sitemaps via lastmod.json · S3 BreadcrumbList (tool pages) + Organization (home, about, how-we-test, tools) JSON-LD
 S5 404 bodies: noindex, no canonical/hreflang/JSON-LD · S6 dist/llms.txt
 No new strings go through i18n; nothing here calls a translation API."""
 import os,re,json,glob,hashlib,subprocess,datetime
@@ -70,6 +70,26 @@ def all_page_urls():
             path="/"
         out.append(SITE+path)
     return out
+
+def wants_org(f):
+    """Home, About, How we test, and tool pages in every language that has a page.
+    Contact, privacy and 404 are excluded."""
+    rel=f[len(D):].replace("\\","/").lstrip("/")
+    if rel=="index.html" or re.fullmatch(r"[a-z]{2}/index.html", rel):
+        return True
+    static=set(getattr(POL,"STATIC_DIRS",("about","privacy","contact","how-we-test")))
+    m=re.fullmatch(r"(?:[a-z]{2}/)?([^/]+)/index.html", rel)
+    if not m:
+        return False
+    slug=m.group(1)
+    if slug in ("privacy","contact"):
+        return False
+    if slug in ("about","how-we-test"):
+        return True
+    if slug in static:
+        return False
+    return True
+
 def schema(urls):
     crumbs=orgs=0
     pages=list(dict.fromkeys(list(urls)+all_page_urls()))
@@ -86,7 +106,7 @@ def schema(urls):
                 h=add_ld(h,{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
                     {"@type":"ListItem","position":1,"name":a.get_text(" ",strip=True),"item":home},
                     {"@type":"ListItem","position":2,"name":h1,"item":canu}]});crumbs+=1
-        if f==f"{D}/index.html" or re.fullmatch(D + r"/[a-z]{2}/index.html", f):
+        if wants_org(f):
             h=re.sub(r'<script type="application/ld\+json">\s*\{[^<]*"@type":\s*"Organization"[^<]*\}</script>','',h)
             h=add_ld(h,POL.organization_ld());orgs+=1
         wr(f,h)
