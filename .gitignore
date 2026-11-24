@@ -3,4 +3,5 @@ tests/out/
 dist/
 __pycache__/
 .indexnow_key
+.indexnow_key.next
 monitor_log.csv
