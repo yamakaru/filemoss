@@ -249,6 +249,55 @@ def add_common(html_src,lang,path):
     html_src=html_src.replace("</head>",POL.robots_tag(lang,path)+hreflang(path)+LCSS+"</head>",1)
     return re.sub(r"(<header class=['\"]top(?:\s[^'\"]*)?['\"]><div class=['\"]w['\"]>.*?</a>)",lambda m:m.group(1)+switcher(lang,path),html_src,count=1,flags=re.S)
 LD_H1={"/watermark-pdf/","/merge-csv/","/remove-duplicate-rows/"}
+ABOUT_I18N = {
+    "es": ("Acerca de FileMoss: herramientas de archivos que se ejecutan en tu dispositivo",
+           "FileMoss es un conjunto gratuito de 37 herramientas de PDF, imagen, hoja de cálculo y texto que procesan los archivos en tu navegador. Cómo funciona y dónde enviar una corrección."),
+    "it": ("Informazioni su FileMoss: strumenti per file che funzionano sul tuo dispositivo",
+           "FileMoss è un insieme gratuito di 37 strumenti per PDF, immagini, fogli di calcolo e testo che elaborano i file nel browser. Come funziona e dove segnalare un errore."),
+    "pt": ("Sobre o FileMoss: ferramentas de arquivo que rodam no seu dispositivo",
+           "O FileMoss é um conjunto gratuito de 37 ferramentas de PDF, imagem, planilha e texto que processam arquivos no seu navegador. Como isso funciona e por onde enviar uma correção."),
+}
+
+def apply_translated_about(html, lang):
+    """After localize(): swap the About guide body for content/about.<lang>.html and
+    set title/description. Do not prefix hrefs — fragments already use /<lang>/...
+    and keep /how-we-test/ unprefixed."""
+    fp = f"content/about.{lang}.html"
+    if not os.path.isfile(fp):
+        return html
+    body = open(fp, encoding="utf-8").read()
+    soup = BeautifulSoup(html, "html.parser")
+    guide = soup.select_one("div.panel.guide") or soup.select_one("div.guide.panel")
+    if not guide:
+        return html
+    frag = BeautifulSoup(body, "html.parser")
+    root = frag.body if frag.body else frag
+    guide.clear()
+    for child in list(root.contents):
+        guide.append(child.extract())
+    title, desc = ABOUT_I18N.get(lang, (None, None))
+    if title and soup.title:
+        soup.title.string = title
+    for m in soup.find_all("meta"):
+        if desc and m.get("name") == "description":
+            m["content"] = desc
+        if title and m.get("property") == "og:title":
+            m["content"] = title
+        if desc and m.get("property") == "og:description":
+            m["content"] = desc
+    for sc in soup.find_all("script"):
+        if sc.get("type") != "application/ld+json" or not sc.string:
+            continue
+        try:
+            j = json.loads(sc.string)
+        except Exception:
+            continue
+        if j.get("@type") == "WebPage":
+            if desc:
+                j["description"] = desc
+            sc.string = json.dumps(j, ensure_ascii=False)
+    return str(soup)
+
 def localize(html_src,lang,path):
     C=CACHE[lang];soup=BeautifulSoup(html_src,"html.parser")
     h1=soup.find("h1");h1en=h1.get_text(" ",strip=True) if h1 else None
@@ -293,7 +342,7 @@ if __name__=="__main__":
     done=sum(1 for p in P if "<details class='lsw'>" in src[p])
     if done:print(f"note: {done} English pages already carry the language switcher (built dist); it is ignored when counting")
     for p in P:
-        if p=="about/index.html":continue  # C3 EN rewrite; locale chrome still localizes, body waits for C4
+        if p=="about/index.html":continue  # C3 EN rewrite; chrome still localizes; body swapped from content/about.<lang>.html after localize()
         need_for_page(strip_common(src[p]),need)
     ext={b:open(f"{D}/assets/{b}").read() for b in EXTJS if os.path.exists(f"{D}/assets/{b}")}
     for b,js in ext.items():
@@ -320,7 +369,10 @@ if __name__=="__main__":
     for lang in langs:
         for p in P:
             o=f"{D}/{lang}/{p}";os.makedirs(os.path.dirname(o),exist_ok=True)
-            open(o,"w").write(localize(src[p],lang,path_of(p)))
+            html=localize(src[p],lang,path_of(p))
+            if p=="about/index.html":
+                html=apply_translated_about(html,lang)
+            open(o,"w").write(html)
         for b,js in ext.items():
             os.makedirs(f"{D}/assets/{lang}",exist_ok=True);open(f"{D}/assets/{lang}/{b}","w").write(apply_js(js,lang))
     for p in P:open(f"{D}/{p}","w").write(add_common(src[p],"en",path_of(p)))

@@ -1,0 +1,29 @@
+<p>FileMoss es un conjunto gratuito de 37 herramientas para archivos de oficina de todos los días: PDF, imágenes, hojas de cálculo y tareas cortas de texto o de fechas. El trabajo ocurre en la pestaña del navegador que ya tienes abierta. Tu archivo no se envía a nuestros servidores, y no necesitas una cuenta ni una vista previa con marca de agua.</p>
+
+<p>El equipo de FileMoss mantiene el sitio y firma las páginas públicas como FileMoss, no con el nombre de una persona. Las preguntas, los avisos de error y las peticiones de herramientas van por la <a href="/es/contact/">página de Contacto</a>. El <a href="https://github.com/yamakaru/filemoss/issues">repositorio de código es público</a>, y también se pueden abrir issues allí.</p>
+
+<h2>Por qué existe FileMoss</h2>
+<p>Un "convertidor gratuito" típico manda el documento a una máquina que tú no controlas, y luego te pide que esperes, que te registres o que ignores una marca de agua. Eso encaja mal con un contrato, un extracto bancario o el escaneo de un documento de identidad. Queríamos herramientas que lean el archivo en tu dispositivo, con bibliotecas de código abierto que podemos nombrar, y que te dejen una descarga desde la misma pestaña.</p>
+
+<h2>Qué puedes hacer aquí</h2>
+<p>Las 37 herramientas están agrupadas así:</p>
+<ul>
+<li><b>Herramientas PDF</b> (13): Unir PDF, Dividir PDF, Rotar PDF, Eliminar páginas PDF, Comprimir PDF, Desbloquear PDF, Numerar páginas de PDF, Marca de agua en PDF, Convertidor de JPG a PDF, Convertidor de PDF a JPG, Convertidor de PDF a Word, Convertidor de PDF a Excel y Escáner de documentos. Desbloquear PDF acepta solo la contraseña que tú escribes, o quita restricciones de un archivo que ya se puede leer. No adivina contraseñas.</li>
+<li><b>Convertidores de archivos</b> (7): Compresor de imágenes, Redimensionador de imágenes, y conversión entre JPG, PNG, WEBP y HEIC.</li>
+<li><b>Herramientas de hojas de cálculo</b> (4): Convertidor de CSV a Excel, Unir archivos CSV &amp; Excel, Eliminar filas duplicadas y Convertidor de CSV a JSON.</li>
+<li><b>Herramientas de texto</b> (4): Imagen a texto (OCR), Contador de palabras, Convertidor de mayúsculas y minúsculas y Comparar textos (Diff Checker).</li>
+<li><b>Productividad</b> (3): Generador de contraseñas, Generador de códigos QR y Generador de firmas de correo.</li>
+<li><b>Fecha y hora</b> (3): Calculadora de horas de trabajo, Calculadora de días hábiles y Planificador de reuniones por zona horaria.</li>
+<li><b>Pagos y dinero</b> (3): Calculadora de porcentajes, Calculadora de pago por hora a salario y Calculadora de costo de reuniones. Esas cifras de pago son importes brutos, no asesoramiento fiscal ni jurídico.</li>
+</ul>
+
+<h2>Cómo funciona el procesamiento local</h2>
+<p>Cuando eliges un archivo, la página lo lee con las API de archivos del navegador y hace la conversión en JavaScript, y cuando hace falta en WebAssembly, dentro de esa misma pestaña. Las bibliotecas se sirven desde FileMoss, no se descargan de un servidor de terceros en el momento en que haces clic. Cuando la página y sus scripts ya se han cargado, en la mayoría de los casos puedes terminar el trabajo aunque pongas el dispositivo sin conexión.</p>
+<p>Sí enviamos una señal anónima y pequeña a <code>/api/e</code> cuando usas una herramienta. Esa petición lleva el nombre de la herramienta, el tipo de acción (por ejemplo, que se eligió un archivo o que empezó una descarga), el idioma de la página y los datos técnicos generales descritos en la <a href="/es/privacy/">política de privacidad</a>. No incluye el archivo, el nombre del archivo ni el texto que hayas escrito. <a href="/how-we-test/">Cómo lo comprobamos</a> (en inglés) explica cómo verificarlo en la pestaña Network.</p>
+
+<h2>Actualizaciones y correcciones</h2>
+<p>Cuando publicamos un cambio, ejecutamos las comprobaciones que le corresponden. Si una biblioteca que servimos publica una corrección, actualizamos nuestra copia y volvemos a probar las herramientas que la usan. Si un resultado no te cuadra, usa la <a href="/es/contact/">página de Contacto</a> y dinos la herramienta, una descripción del archivo (no hace falta que lo adjuntes) y qué salió mal.</p>
+
+<h2>Límites que conviene conocer</h2>
+<p>Un archivo muy grande puede agotar la memoria de un teléfono o de un portátil antiguo; si la pestaña se queda congelada, prueba con un archivo más pequeño o con un navegador de escritorio. Un PDF escaneado no tiene capa de texto, así que el Convertidor de PDF a Excel y el Convertidor de PDF a Word no pueden leerlo como texto (usa Imagen a texto (OCR) o el Escáner de documentos). El reconocimiento óptico de caracteres se equivoca, sobre todo con letra pequeña y con acentos, así que lee el resultado antes de fiarte de él. Las herramientas esperan una versión reciente de Chrome, Edge, Firefox o Safari.</p>
+<p>Para las bibliotecas que usamos, las pruebas que ejecutamos y una comprobación paso a paso en la pestaña Network, lee <a href="/how-we-test/">Cómo lo comprobamos</a> (en inglés).</p>

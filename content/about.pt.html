@@ -1,0 +1,29 @@
+<p>O FileMoss é um conjunto gratuito de 37 ferramentas para arquivos de escritório do dia a dia: PDFs, imagens, planilhas e tarefas curtas de texto ou de data. O trabalho acontece na aba do navegador que você já tem aberta. Seu arquivo não é enviado aos nossos servidores, e você não precisa de uma conta nem de uma prévia com marca d'água.</p>
+
+<p>A equipe do FileMoss mantém o site e assina as páginas públicas como FileMoss, não com o nome de uma pessoa. Perguntas, relatos de erro e pedidos de ferramentas passam pela <a href="/pt/contact/">página de Contato</a>. O <a href="https://github.com/yamakaru/filemoss/issues">repositório de código é público</a>, e as issues também podem ser abertas por lá.</p>
+
+<h2>Por que o FileMoss existe</h2>
+<p>Um "conversor gratuito" típico manda o documento para uma máquina que você não controla e depois pede que você espere, se cadastre ou ignore uma marca d'água. Isso combina mal com um contrato, um extrato bancário ou o scan de um documento de identidade. Queríamos ferramentas que lessem o arquivo no seu dispositivo, com bibliotecas de código aberto que podemos nomear, e que entregassem o download na mesma aba.</p>
+
+<h2>O que você pode fazer aqui</h2>
+<p>As 37 ferramentas estão agrupadas assim:</p>
+<ul>
+<li><b>Ferramentas de PDF</b> (13): Juntar PDF, Dividir PDF, Girar PDF, Excluir Páginas do PDF, Comprimir PDF, Desbloquear PDF, Numerar páginas de PDF, Marca d'água em PDF, Conversor de JPG para PDF, Conversor de PDF para JPG, Conversor de PDF para Word, Conversor de PDF para Excel e Scanner de Documentos. O Desbloquear PDF aceita só a senha que você digita, ou remove restrições de um arquivo que já dá para ler. Ele não tenta adivinhar senhas.</li>
+<li><b>Conversores de arquivo</b> (7): Compressor de Imagem, Redimensionador de Imagem, e conversão entre JPG, PNG, WEBP e HEIC.</li>
+<li><b>Ferramentas de planilhas</b> (4): Conversor de CSV para Excel, Juntar arquivos CSV &amp; Excel, Remover linhas duplicadas e Conversor de CSV para JSON.</li>
+<li><b>Ferramentas de texto</b> (4): Imagem para Texto (OCR), Contador de Palavras, Conversor de Maiúsculas e Minúsculas e Comparar Textos (Diff Checker).</li>
+<li><b>Produtividade</b> (3): Gerador de Senhas, Gerador de QR Code e Gerador de Assinatura de E-mail.</li>
+<li><b>Data e hora</b> (3): Calculadora de Ponto, Calculadora de Dias Úteis e Planejador de Reuniões com Fuso Horário.</li>
+<li><b>Pagamento &amp; dinheiro</b> (3): Calculadora de Porcentagem, Calculadora de Salário por Hora e Calculadora de Custo de Reunião. Esses valores de pagamento são quantias brutas, não aconselhamento fiscal ou jurídico.</li>
+</ul>
+
+<h2>Como funciona o processamento local</h2>
+<p>Quando você escolhe um arquivo, a página o lê com as APIs de arquivo do navegador e faz a conversão em JavaScript, e quando é preciso em WebAssembly, dentro daquela mesma aba. As bibliotecas são servidas pelo próprio FileMoss, não são baixadas de um servidor de terceiros na hora em que você clica. Depois que a página e os scripts já carregaram, em geral você consegue terminar o trabalho mesmo se colocar o dispositivo offline.</p>
+<p>Nós enviamos um sinal de uso pequeno e anônimo para <code>/api/e</code> quando você usa uma ferramenta. Esse pedido leva o nome da ferramenta, o tipo de ação (por exemplo, que um arquivo foi escolhido ou que um download começou), o idioma da página e os dados técnicos gerais descritos na <a href="/pt/privacy/">política de privacidade</a>. Ele não inclui o arquivo, o nome do arquivo nem o texto que você digitou. <a href="/how-we-test/">Como testamos</a> (em inglês) mostra como confirmar isso na aba Network.</p>
+
+<h2>Atualizações e correções</h2>
+<p>Quando publicamos uma mudança, rodamos as verificações que pertencem a ela. Se uma biblioteca que oferecemos publica uma correção, atualizamos a nossa cópia e testamos de novo as ferramentas que a usam. Se um resultado parecer errado, use a <a href="/pt/contact/">página de Contato</a> e nos diga a ferramenta, uma descrição do arquivo (você não precisa anexá-lo) e o que deu errado.</p>
+
+<h2>Limites que vale a pena conhecer</h2>
+<p>Arquivos muito grandes podem esgotar a memória de um celular ou de um notebook mais antigo; se a aba travar, tente um arquivo menor ou um navegador de computador. Um PDF digitalizado não tem camada de texto, então o Conversor de PDF para Excel e o Conversor de PDF para Word não conseguem lê-lo como texto (use Imagem para Texto (OCR) ou o Scanner de Documentos). O reconhecimento óptico de caracteres erra, principalmente com letra pequena e com acentos, então leia o resultado antes de confiar nele. As ferramentas esperam uma versão atual do Chrome, Edge, Firefox ou Safari.</p>
+<p>Para as bibliotecas que usamos, os testes que rodamos e uma verificação passo a passo na aba Network, leia <a href="/how-we-test/">Como testamos</a> (em inglês).</p>

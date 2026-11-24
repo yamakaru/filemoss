@@ -4,6 +4,7 @@ English-only copy that the build reads on every run. No `--translate` step is ne
 
 | File | Route | Notes |
 |---|---|---|
+| `about.es.html`, `about.it.html`, `about.pt.html` | `/es/about/`, `/it/about/`, `/pt/about/` | MMO translations (24/11/2026). Swapped into `div.panel.guide` after `localize()`; hrefs already have the locale prefix and must not be prefixed again. Title/description are set in `i18n.py`. Other locales keep the English body (C2 noindex) until later copy exists. |
 | `about.en.html` | `/about/` | HTML fragment used as the About body. The current published About text is already here. To ship a rewrite (≥400 words), replace this file’s contents (same fragment format: headings and paragraphs, no `<html>` wrapper). Changing the English will leave older translations in `i18n/<lang>.json` stale until MMO/Lập trình viên update those caches (or run a later approved `--translate`). |
 | `how-we-test.en.html` | `/how-we-test/` | EN-only route. Canonical is self. Default **noindex** and **not in the sitemap** until the article is long enough (see the comment in the file and `HOW_WE_TEST_INDEX` in `../config.py`). |
 
