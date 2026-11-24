@@ -44,4 +44,4 @@ input[type=file]{font-size:16px}
 .howt a{color:var(--p);font-weight:600}
 
 .toolcol p.basis-note,.toolcol p.priv.howt,.toolcol > main > p.priv{margin:10px 0 0;font-size:14px}
-.toolcol p.basis-note a,.toolcol > main > p.priv a{color:var(--p);font-weight:600}
+.toolcol p.basis-note a,.toolcol > main > p.priv a{color:var(--p);font-weight:600;display:inline-flex;align-items:center;min-height:44px}
