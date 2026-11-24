@@ -18,6 +18,26 @@ LNAME={"es":"Spanish (Latin American, neutral; e.g. 'concreto' not 'hormigón', 
 ALL=["en"]+list(LANGS)
 CTX={"PorchMath":"PorchMath, a free home-improvement material calculator website (concrete, paint, flooring...). Measurements stay in US units (ft, in, sq ft, cu yd, lb, gallons) because formulas depend on them; keep unit abbreviations as-is.",
 "FileMoss":"FileMoss, a free private browser-based office/file tools website (PDF merge, image converters, OCR, calculators)."}[SITE_NAME]
+try:
+    import seo_policy as POL
+except ImportError:
+    # Isolated tests (test_i18n_budget) copy only i18n.py into a temp dir.
+    class _Pol:
+        INDEXED_LANGS = ("en","es","pt","fr","de","it","id","vi","ja")
+        @staticmethod
+        def hreflang_langs(path):
+            return list(_Pol.INDEXED_LANGS)
+        @staticmethod
+        def robots_tag(lang, path):
+            return ""
+        @staticmethod
+        def keep_href(h):
+            return False
+        @staticmethod
+        def page_in_sitemap(lang, path):
+            return True
+    POL = _Pol()
+
 D="dist";os.makedirs("i18n",exist_ok=True)
 TERMS=open("i18n_terms.txt",encoding="utf-8").read().strip() if os.path.exists("i18n_terms.txt") else ""
 if TERMS:CTX=CTX+" "+TERMS
@@ -155,6 +175,7 @@ def pages():
     for f in glob.glob(D+"/**/*.html",recursive=True):
         rel=f[len(D)+1:]
         if rel.split("/")[0] in LANGS:continue
+        if rel=="404.html" or rel=="how-we-test/index.html":continue
         out.append(rel)
     return sorted(out)
 def path_of(rel):return "/" if rel in("index.html","404.html") else "/"+rel[:-len("index.html")]
@@ -201,7 +222,9 @@ def need_for_page(html_src,need):
             continue
         for a,b,r in collect_js(sc.string):src=unesc(r[0],r[1:-1]);need["j"+hk(src)]=("js",src)
 def hreflang(path):
-    return "".join(f'<link rel="alternate" hreflang="{l}" href="{SITE}{"" if l=="en" else "/"+l}{path}">' for l in ALL)+f'<link rel="alternate" hreflang="x-default" href="{SITE}{path}">'
+    langs=POL.hreflang_langs(path)
+    if not langs:return ""
+    return "".join(f'<link rel="alternate" hreflang="{l}" href="{SITE}{"" if l=="en" else "/"+l}{path}">' for l in langs)+f'<link rel="alternate" hreflang="x-default" href="{SITE}{path}">'
 LCSS="<style>.lsw{position:relative;margin-left:auto;margin-right:4px}.lsw summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:5px;padding:7px 9px;border:1px solid var(--line);border-radius:10px;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}.lsw summary::-webkit-details-marker{display:none}.lsw[open] summary{color:var(--p);border-color:var(--p)}.lsw ul{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(15,23,42,.12);list-style:none;margin:0;padding:6px;min-width:170px;z-index:50}.lsw li a{display:block;padding:8px 12px;border-radius:8px;color:var(--ink);text-decoration:none;font-size:14px}.lsw li a:hover,.lsw li a[aria-current]{background:var(--soft);color:var(--p)}header.top .w{gap:12px}@media(max-width:640px){.lsw summary{padding:6px 8px}}</style>"
 GLOBE='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'
 def switcher(cur,path):
@@ -213,8 +236,8 @@ def strip_common(html_src):
     html_src=html_src.replace(LCSS,"",1)
     return re.sub(r"<details class='lsw'>.*?</details>(?:<script>\(function\(\)\{var q=location\.search.*?</script>)?","",html_src,count=1,flags=re.S)
 def add_common(html_src,lang,path):
-    html_src=html_src.replace("</head>",hreflang(path)+LCSS+"</head>",1)
-    return re.sub(r"(<header class=['\"]top['\"]><div class=['\"]w['\"]>.*?</a>)",lambda m:m.group(1)+switcher(lang,path),html_src,count=1,flags=re.S)
+    html_src=html_src.replace("</head>",POL.robots_tag(lang,path)+hreflang(path)+LCSS+"</head>",1)
+    return re.sub(r"(<header class=['\"]top(?:\s[^'\"]*)?['\"]><div class=['\"]w['\"]>.*?</a>)",lambda m:m.group(1)+switcher(lang,path),html_src,count=1,flags=re.S)
 LD_H1={"/watermark-pdf/","/merge-csv/","/remove-duplicate-rows/"}
 def localize(html_src,lang,path):
     C=CACHE[lang];soup=BeautifulSoup(html_src,"html.parser")
@@ -234,7 +257,7 @@ def localize(html_src,lang,path):
         if e.get("data-s"):
             e["data-s"]=(e.get_text(" ")+" "+e["data-s"]).lower()  # localized + English keywords both searchable
         h=e.get("href")
-        if e.name=="a" and h and h.startswith("/") and not h.startswith("/assets/") and not e.get("hreflang"):e["href"]="/"+lang+h
+        if e.name=="a" and h and h.startswith("/") and not POL.keep_href(h) and not e.get("hreflang"):e["href"]="/"+lang+h
     for sc in soup.find_all("script"):
         if sc.get("src"):
             b=sc["src"].rsplit("/",1)[-1]
@@ -259,7 +282,9 @@ if __name__=="__main__":
     need={}
     done=sum(1 for p in P if "<details class='lsw'>" in src[p])
     if done:print(f"note: {done} English pages already carry the language switcher (built dist); it is ignored when counting")
-    for p in P:need_for_page(strip_common(src[p]),need)
+    for p in P:
+        if p=="about/index.html":continue  # C3 EN rewrite; locale chrome still localizes, body waits for C4
+        need_for_page(strip_common(src[p]),need)
     ext={b:open(f"{D}/assets/{b}").read() for b in EXTJS if os.path.exists(f"{D}/assets/{b}")}
     for b,js in ext.items():
         for a,c,r in collect_js(js):s=unesc(r[0],r[1:-1]);need["j"+hk(s)]=("js",s)
@@ -289,9 +314,30 @@ if __name__=="__main__":
         for b,js in ext.items():
             os.makedirs(f"{D}/assets/{lang}",exist_ok=True);open(f"{D}/assets/{lang}/{b}","w").write(apply_js(js,lang))
     for p in P:open(f"{D}/{p}","w").write(add_common(src[p],"en",path_of(p)))
-    # sitemaps: index + one per language with hreflang alternates
-    urls=[path_of(p) for p in P if p!="404.html"]
-    sm=lambda l:'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'+"".join(f"<url><loc>{SITE}{'' if l=='en' else '/'+l}{u}</loc>"+"".join(f'<xhtml:link rel="alternate" hreflang="{x}" href="{SITE}{"" if x=="en" else "/"+x}{u}"/>' for x in ALL)+f'<xhtml:link rel="alternate" hreflang="x-default" href="{SITE}{u}"/></url>' for u in urls)+"</urlset>"
-    for l in ALL:open(f"{D}/sitemap-{l}.xml","w").write(sm(l))
-    open(f"{D}/sitemap.xml","w").write('<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+"".join(f"<sitemap><loc>{SITE}/sitemap-{l}.xml</loc></sitemap>" for l in ALL)+"</sitemapindex>")
+    # EN-only routes (e.g. /how-we-test/): add robots/hreflang/switcher, do not localize
+    for rel in ("how-we-test/index.html",):
+        fp=f"{D}/{rel}"
+        if os.path.exists(fp):
+            _hwt=open(fp,encoding="utf-8").read()
+            open(fp,"w",encoding="utf-8").write(add_common(_hwt,"en",path_of(rel)))
+    # sitemaps: one file per INDEXED language; drop noindex langs and non-indexable paths
+    all_paths=[path_of(p) for p in P]+([path_of("how-we-test/index.html")] if os.path.exists(f"{D}/how-we-test/index.html") else [])
+    def sm_urls(l):
+        return [u for u in all_paths if POL.page_in_sitemap(l,u)]
+    def sm(l):
+        urls=sm_urls(l)
+        parts=[]
+        for u in urls:
+            alts=POL.hreflang_langs(u)
+            parts.append("<url><loc>"+SITE+("" if l=="en" else "/"+l)+u+"</loc>"+
+                "".join(f'<xhtml:link rel="alternate" hreflang="{x}" href="{SITE}{"" if x=="en" else "/"+x}{u}"/>' for x in alts)+
+                f'<xhtml:link rel="alternate" hreflang="x-default" href="{SITE}{u}"/></url>')
+        return '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'+"".join(parts)+"</urlset>"
+    for l in POL.INDEXED_LANGS:
+        open(f"{D}/sitemap-{l}.xml","w").write(sm(l))
+    for l in ALL:
+        if l not in POL.INDEXED_LANGS:
+            fp=f"{D}/sitemap-{l}.xml"
+            if os.path.exists(fp):os.remove(fp)
+    open(f"{D}/sitemap.xml","w").write('<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+"".join(f"<sitemap><loc>{SITE}/sitemap-{l}.xml</loc></sitemap>" for l in POL.INDEXED_LANGS)+"</sitemapindex>")
     print("i18n done",langs)

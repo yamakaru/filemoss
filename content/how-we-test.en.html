@@ -1,0 +1,48 @@
+<!--
+  MMO / C3 EN article (pasted 24/11/2026 from /workspace/specs/c3_content/).
+  EN-only route. Canonical is self.
+
+  Indexing uses HOW_WE_TEST_INDEX in config.py (default "auto"):
+    the page is indexed and added to the EN sitemap when visible word
+    count is >= HOW_WE_TEST_MIN_WORDS (500) and outbound https sources
+    are >= HOW_WE_TEST_MIN_SOURCES (5). Set "yes" or "no" to override.
+  To revise the article, edit this file and rebuild (no --translate).
+-->
+<p>FileMoss tools are meant to process a file on your device. This page names the open-source libraries that do that work, describes the automated checks we run, and shows how to confirm in your browser that the file itself is not uploaded.</p>
+
+<h2>Libraries that run in the tab</h2>
+<p>The code for each tool is served from FileMoss and executed locally. These are the main libraries and the job each one does:</p>
+<ul>
+<li><a href="https://pdf-lib.js.org/">pdf-lib</a> creates and edits PDFs: merge, split, rotate, delete pages, JPG to PDF, compress, page numbers, watermarks, and the PDF output from the document scanner. <a href="https://github.com/Hopding/fontkit">@pdf-lib/fontkit</a> embeds a subset of Noto Sans, and Noto Sans JP when the text needs it, for page numbers and text watermarks.</li>
+<li>Mozilla's <a href="https://mozilla.github.io/pdf.js/">PDF.js</a> reads and renders PDF pages for PDF to JPG, PDF to Word, and PDF to Excel.</li>
+<li><a href="https://stuk.github.io/jszip/">JSZip</a> writes the <code>.docx</code> from PDF to Word, and builds ZIP downloads when a tool gives you more than one file.</li>
+<li><a href="https://docs.sheetjs.com/">SheetJS</a> (the <code>xlsx</code> library) reads and writes Excel workbooks for CSV to Excel, merged or de-duplicated spreadsheets, and PDF to Excel.</li>
+<li><a href="https://github.com/neslinesli93/qpdf-wasm">qpdf-wasm</a>, a WebAssembly build of <a href="https://github.com/qpdf/qpdf">qpdf</a>, powers Unlock PDF. It makes one attempt with the password you type, or writes a copy without owner restrictions when the file is already readable. It does not try other passwords.</li>
+<li><a href="https://tesseract.projectnaptha.com/">Tesseract.js</a> does on-device OCR for Image to Text and the document scanner. Language data is served from FileMoss, not from a third-party host at click time.</li>
+<li><a href="https://github.com/alexcorvi/heic2any">heic2any</a> decodes HEIC photos, including on the HEIC to JPG page. <a href="https://github.com/kazuhikoarase/qrcode-generator">qrcode-generator</a> draws QR codes. Image resize, compress, and format conversion use the browser <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">Canvas API</a>. Unlock PDF and OCR also depend on <a href="https://developer.mozilla.org/en-US/docs/WebAssembly">WebAssembly</a>.</li>
+</ul>
+<p>Files themselves are read with the browser <a href="https://developer.mozilla.org/en-US/docs/Web/API/File_API">File API</a>. They are not attached to a form that posts the document to a server.</p>
+
+<h2>Automated checks</h2>
+<p>The FileMoss repository has a test runner (<code>test_all.sh</code>) and focused scripts we use when something changes. Not every tool is covered the same way, but the checks are real and they live next to the code:</p>
+<ul>
+<li><code>tests/test_core.js</code> covers shared text and date helpers: word counts, case conversion, diffs (including Vietnamese diacritics in NFC and NFD form), and related utilities.</li>
+<li><code>tests/test_browser.js</code> drives a real Chrome window against sample files for many tools, including merge, split, rotate, delete pages, JPG to PDF, PDF to JPG, image compress and resize, CSV conversion, QR codes, and the calculators and text tools in that script.</li>
+<li>Separate browser scripts cover PDF compression, the document scanner, Vietnamese OCR, and PDF to Word (the last also checks the <code>.docx</code> in Python, including stored fixtures). Newer PDF and spreadsheet tools (page numbers, watermarks, unlock, merge CSV, remove duplicate rows) have their own acceptance script.</li>
+</ul>
+<p>We run those checks after editing a tool, updating a shipped library, or changing shared helpers. That is not a claim that a test has run on every deploy, and a green run does not guarantee that your particular file will convert cleanly. Odd PDFs, huge images, and hard-to-read scans still fail. If one does, use the <a href="/contact/">Contact page</a>.</p>
+
+<h2>Confirm that your file is not uploaded</h2>
+<p>You can check this yourself in the browser's Network panel. Chrome's docs are here: <a href="https://developer.chrome.com/docs/devtools/network">Chrome DevTools, Network tab</a>. Firefox and Edge have an equivalent.</p>
+<ol>
+<li>Open the FileMoss tool you want to try and wait until the page has finished loading.</li>
+<li>Open DevTools (in Chrome, F12 or right-click and choose Inspect) and switch to the Network tab. Turn on "Preserve log" so a later navigation does not wipe the list.</li>
+<li>Choose a file, run the tool, and download the result if the tool offers one.</li>
+<li>Look at the requests that appeared after you chose the file. You should not see a request whose payload is the PDF, image, or spreadsheet itself: no multi-megabyte POST, and no multipart upload of the document.</li>
+<li>You will usually see one or more small POST requests to <code>/api/e</code>. Click one and read the request body. It is a short JSON object such as <code>{"t":"merge-pdf","a":"upload","l":"en"}</code>. <code>t</code> is the tool's URL slug, <code>a</code> is the action (<code>upload</code> when a file is chosen, <code>process_done</code> when work finishes, <code>download</code> or <code>copy</code> when you take the result, <code>calc</code> on calculator pages), and <code>l</code> is the page language. The body does not include a filename, file bytes, or the text you typed. The server rejects a body larger than 300 bytes.</li>
+<li>After the page and its libraries have loaded, you can go offline and still process a file already on the device. The <code>/api/e</code> call will fail quietly; your file still never leaves the browser. If you have not yet used a tool that lazy-loads an extra library (for example, the first time you open Unlock PDF or Image to Text), that library file has to be fetched first. That download is our script or WebAssembly module, not your document.</li>
+</ol>
+<p>The privacy policy describes what else is stored with a usage event: the date (not the time of day), the country Cloudflare reports, and a browser family such as Chrome. No cookie is set for this, and we do not keep your IP address. A short-lived, salted hash of the address is used only to blunt abuse, then discarded.</p>
+
+<h2>How we handle a bug</h2>
+<p>If a tool mangles a file or a number looks wrong, use the <a href="/contact/">Contact page</a>. A description of the file (page count, language, whether it is scanned or password-protected) is more useful than a vague "it failed." Do not send confidential documents unless you have removed anything sensitive and are willing to share them. We try to reproduce the failure, fix the tool or document a genuine limit (for example, a scanned PDF with no text layer), and add a check when that keeps the fix in place.</p>

@@ -36,3 +36,12 @@ footer.ft{background:var(--dark);color:#94a3b8;margin-top:0;padding:52px 0 36px;
 input[type=file]{font-size:16px}
 @media(max-width:820px){.logo{min-height:44px}.cta,.lsw li a,.ft a,.pop a,.crumb a{display:inline-flex;align-items:center;min-height:44px}.lsw li a,.ft .cols a,.pop a{display:flex}.chip,.search button{min-height:44px;min-width:44px}.crumb a{min-width:44px}.trust,.trust .tm{font-size:12px}}
 @media(max-width:820px){.lsw summary,details>summary{min-height:44px;box-sizing:border-box}.lsw summary{min-width:44px;justify-content:center}button{min-height:44px;min-width:44px}details:not(.lsw)>summary{padding-top:10px;padding-bottom:10px}label[for]:not(.sr){display:flex;align-items:center;min-height:44px}}
+
+.toolcol{min-width:0;display:flex;flex-direction:column;gap:28px}
+.related{margin:0}
+.related>.h,.related h2{font-size:20px;margin:0 0 12px}
+.howt{margin:10px 0 0;font-size:14px}
+.howt a{color:var(--p);font-weight:600}
+
+.toolcol p.basis-note,.toolcol p.priv.howt,.toolcol > main > p.priv{margin:10px 0 0;font-size:14px}
+.toolcol p.basis-note a,.toolcol > main > p.priv a{color:var(--p);font-weight:600}

@@ -7,7 +7,8 @@ from zoneinfo import ZoneInfo
 from bs4 import BeautifulSoup
 exec(open("config.py").read())
 SITE=os.environ.get("BASE_URL",BASE_URL).rstrip("/")
-D="dist";LANGS=["es","pt","fr","de","it","id","vi","ja"];NONTOOL={"about","privacy","contact"}
+import seo_policy as POL
+D="dist";LANGS=["es","pt","fr","de","it","id","vi","ja"];NONTOOL={"about","privacy","contact","how-we-test"}
 TODAY=datetime.datetime.now(ZoneInfo("Asia/Saigon")).date().isoformat()
 def rd(p):return open(p,encoding="utf-8").read()
 def wr(p,s):open(p,"w",encoding="utf-8").write(s)
@@ -23,40 +24,71 @@ def is_tool(url):
     s=[x for x in url[len(SITE):].split("/") if x]
     if s and s[0] in LANGS:s=s[1:]
     return len(s)==1 and s[0] not in NONTOOL
-# ---------------- S5: 404 bodies (status is already 404 via Pages)
+# ---------------- S5: real 404.html (English, from about page shell). Cloudflare Pages serves this with HTTP 404.
 def fix_404():
-    fs=[f"{D}/404.html"]+[f"{D}/{l}/404.html" for l in LANGS if os.path.exists(f"{D}/{l}/404.html")]
-    for f in fs:
-        h=rd(f)
-        h=re.sub(r'<link[^>]*rel="canonical"[^>]*/?>','',h)
-        h=re.sub(r'<link[^>]*hreflang=[^>]*/?>','',h)
-        h=re.sub(r'<script type="application/ld\+json">.*?</script>','',h,flags=re.S)
-        h=re.sub(r'<meta[^>]*property="og:url"[^>]*/?>','',h)
-        if 'name="robots"' not in h:h=re.sub(r"(</title>)",r'\1<meta name="robots" content="noindex">',h,count=1)
-        head=h.split("</head>")[0]
-        assert "canonical" not in head and "hreflang=" not in head and "ld+json" not in h and "noindex" in head,f
-        wr(f,h)
-    return len(fs)
+    # drop leftover locale 404 copies (Pages only uses dist/404.html)
+    for l in LANGS:
+        fp=f"{D}/{l}/404.html"
+        if os.path.exists(fp):os.remove(fp)
+    h=rd(f"{D}/about/index.html")
+    h=re.sub(r'<link[^>]*rel="canonical"[^>]*/?>','',h)
+    h=re.sub(r'<link[^>]*hreflang=[^>]*/?>','',h)
+    h=re.sub(r'<script type="application/ld\+json">.*?</script>','',h,flags=re.S)
+    h=re.sub(r'<meta[^>]*property="og:url"[^>]*/?>','',h)
+    t="Page not found – FileMoss"
+    h=re.sub(r"<title>.*?</title>",f"<title>{t}</title><meta name=\"robots\" content=\"noindex\">",h,count=1,flags=re.S)
+    h=re.sub(r'<meta property="og:title" content="[^"]*">',f'<meta property="og:title" content="{t}">',h)
+    desc="The page you were looking for does not exist on FileMoss."
+    h=re.sub(r'<meta name="description" content="[^"]*">',f'<meta name="description" content="{desc}">',h)
+    h=re.sub(r'<meta property="og:description" content="[^"]*">',f'<meta property="og:description" content="{desc}">',h)
+    # language switcher should point at each language home, not /about/
+    h=re.sub(r"(<details class='lsw'>.*?</details>)",lambda m:re.sub(r'href="(/[a-z]{2})?/about/"',lambda n:f'href="{n.group(1) or ""}/"',m.group(1)),h,count=1,flags=re.S)
+    h=re.sub(r"(<details class='lsw'>.*?</details>)",lambda m:re.sub(r"href='(/[a-z]{2})?/about/'",lambda n:f"href='{n.group(1) or ''}/'",m.group(1)),h,count=1,flags=re.S)
+    main=("<main class='w page'><h1>Page not found</h1><div class='panel guide'>"
+          "<p>Sorry, the page you were looking for doesn't exist or has moved.</p>"
+          "<p><a href='/'>Go to the FileMoss home page</a> or <a href='/#tools'>browse all tools</a>.</p></div></main>")
+    h=re.sub(r"<main[\s>].*?</main>",lambda m:main,h,count=1,flags=re.S)
+    head=h.split("</head>")[0]
+    assert "canonical" not in head and "hreflang=" not in head and "ld+json" not in h and "noindex" in head
+    wr(f"{D}/404.html",h)
+    return 1
 # ---------------- sitemap URLs
-def sitemap_files():return [f"{D}/sitemap-{l}.xml" for l in ["en"]+LANGS]
+def sitemap_files():return [f"{D}/sitemap-{l}.xml" for l in POL.INDEXED_LANGS if os.path.exists(f"{D}/sitemap-{l}.xml")]
 def sitemap_urls():
     out=[]
     for f in sitemap_files():out+=re.findall(r"<url><loc>([^<]+)</loc>",rd(f))
     return out
 # ---------------- S3: JSON-LD
+def all_page_urls():
+    """Every live index.html under dist/, including noindex languages (not 404)."""
+    out=[]
+    for f in glob.glob(f"{D}/**/index.html",recursive=True):
+        rel=f[len(D):].replace("\\","/")
+        if rel.endswith("/index.html"):
+            path=rel[:-len("index.html")]
+        else:
+            path="/"
+        out.append(SITE+path)
+    return out
 def schema(urls):
     crumbs=orgs=0
-    for u in urls:
-        f=file_of(u);h=rd(f);s=BeautifulSoup(h,"html.parser")
+    pages=list(dict.fromkeys(list(urls)+all_page_urls()))
+    for u in pages:
+        f=file_of(u)
+        if not os.path.exists(f):continue
+        h=rd(f);s=BeautifulSoup(h,"html.parser")
         nav=s.find("nav",class_="crumb")
         if nav and is_tool(u):
-            a=nav.find("a");can=s.find("link",rel="canonical")["href"];h1=s.find("h1").get_text(" ",strip=True)
-            home=a["href"];home=SITE+home if home.startswith("/") else home
-            h=add_ld(h,{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
-                {"@type":"ListItem","position":1,"name":a.get_text(" ",strip=True),"item":home},
-                {"@type":"ListItem","position":2,"name":h1,"item":can}]});crumbs+=1
-        if f==f"{D}/index.html" or re.fullmatch(rf"{D}/[a-z]{{2}}/index.html",f):
-            h=add_ld(h,{"@context":"https://schema.org","@type":"Organization","@id":SITE+"/#org","name":SITE_NAME,"url":SITE+"/"});orgs+=1
+            a=nav.find("a");can=s.find("link",rel="canonical")
+            if a and can and s.find("h1"):
+                canu=can["href"];h1=s.find("h1").get_text(" ",strip=True)
+                home=a["href"];home=SITE+home if home.startswith("/") else home
+                h=add_ld(h,{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+                    {"@type":"ListItem","position":1,"name":a.get_text(" ",strip=True),"item":home},
+                    {"@type":"ListItem","position":2,"name":h1,"item":canu}]});crumbs+=1
+        if f==f"{D}/index.html" or re.fullmatch(D + r"/[a-z]{2}/index.html", f):
+            h=re.sub(r'<script type="application/ld\+json">\s*\{[^<]*"@type":\s*"Organization"[^<]*\}</script>','',h)
+            h=add_ld(h,POL.organization_ld());orgs+=1
         wr(f,h)
     return crumbs,orgs
 # ---------------- S2: lastmod
@@ -78,7 +110,7 @@ def git_date(f):
     except Exception:return None
 def lastmod(urls):
     path="lastmod.json";db=json.load(open(path)) if os.path.exists(path) else {}
-    new={};changed=0
+    new=dict(db);changed=0  # keep lastmod for URLs dropped from the sitemap (reversible C2)
     for u in urls:
         key=u[len(SITE):] or "/";hs=content_hash(rd(file_of(u)))
         if key in db and db[key][0]==hs:new[key]=db[key];continue
@@ -103,7 +135,7 @@ def llms(urls):
     for u in tools:
         h1,d=meta(file_of(u));L.append(f"- [{h1}]({u}): {d}")
     L+=["","## About","",f"- [About]({SITE}/about/): what FileMoss is and how the tools work",f"- [Privacy Policy]({SITE}/privacy/)",f"- [Contact]({SITE}/contact/)","",
-        "Other languages: "+" ".join(f"[/{l}/]({SITE}/{l}/)" for l in LANGS),""]
+        "Other languages: "+" ".join(f"[/{l}/]({SITE}/{l}/)" for l in POL.INDEXED_LANGS if l!="en"),""]
     wr(f"{D}/llms.txt","\n".join(L));return len(tools)
 if __name__=="__main__":
     n404=fix_404();urls=sitemap_urls()

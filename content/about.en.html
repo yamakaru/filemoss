@@ -1,0 +1,29 @@
+<p>FileMoss is a free set of 37 tools for everyday office files: PDFs, images, spreadsheets, and short text or date jobs. The work happens in the browser tab you already have open. Your file is not sent to our servers, and you do not need an account or a watermarked preview.</p>
+
+<p>The FileMoss team maintains the site and signs the public pages as FileMoss, not as a named individual. Questions, bug reports, and tool requests go through the <a href="/contact/">Contact page</a>. The <a href="https://github.com/yamakaru/filemoss/issues">source repository is public</a>, and issues can be filed there as well.</p>
+
+<h2>Why FileMoss exists</h2>
+<p>A typical "free converter" posts the document to a machine you do not control, then asks you to wait, register, or ignore a watermark. That is a poor fit for a contract, a bank statement, or a scan of an ID. We wanted tools that read the file on your device, using open-source libraries we can name, and then hand you a download from the same tab.</p>
+
+<h2>What you can do here</h2>
+<p>The 37 tools are grouped like this:</p>
+<ul>
+<li><b>PDF tools</b> (13): merge, split, rotate, delete pages, compress, unlock, add page numbers, watermark, JPG to PDF, PDF to JPG, PDF to Word, PDF to Excel, and a document scanner. Unlock accepts only the password you type, or removes restrictions from a file that is already readable. It does not guess passwords.</li>
+<li><b>File converters</b> (7): compress and resize images, and convert between JPG, PNG, WEBP, and HEIC.</li>
+<li><b>Spreadsheet tools</b> (4): CSV to Excel, merge CSV or Excel files, remove duplicate rows, and CSV to JSON.</li>
+<li><b>Text tools</b> (4): image-to-text (OCR), a word counter, a case converter, and a text compare tool.</li>
+<li><b>Productivity</b> (3): a password generator, QR codes, and an email signature generator.</li>
+<li><b>Date and time</b> (3): a time card, business days, and a time-zone meeting planner.</li>
+<li><b>Pay and money</b> (3): percentage, hourly-to-salary, and meeting-cost calculators. Those pay figures are gross amounts, not tax or legal advice.</li>
+</ul>
+
+<h2>How local processing works</h2>
+<p>When you choose a file, the page reads it with the browser's file APIs and runs the conversion in JavaScript, and where needed in WebAssembly, inside that tab. The libraries are served from FileMoss itself, not pulled from a third-party host at the moment you click. After the page and its scripts have loaded, you can usually finish the job even if you take the device offline.</p>
+<p>We do send a small anonymous usage signal to <code>/api/e</code> when you use a tool. That request carries the tool name, the kind of action (for example, that a file was chosen or a download started), the page language, and the coarse technical data described in the <a href="/privacy/">privacy policy</a>. It does not include the file, the filename, or the text you typed. <a href="/how-we-test/">How we test</a> shows how to confirm this in the Network tab.</p>
+
+<h2>Updates and corrections</h2>
+<p>When we ship a change, we run the checks that belong to it. If a library we ship publishes a fix, we update our copy and re-test the tools that use it. If a result looks wrong, use the <a href="/contact/">Contact page</a> and tell us the tool, a description of the file (you do not have to attach the file), and what went wrong.</p>
+
+<h2>Limits you should know</h2>
+<p>Very large files can exhaust the memory in a phone or an older laptop; if the tab freezes, try a smaller file or a desktop browser. A scanned PDF has no text layer, so PDF to Excel and PDF to Word cannot read it as text (use Image to Text or the document scanner). Optical character recognition makes mistakes, especially with small type and accents, so read the result before you rely on it. The tools expect a current Chrome, Edge, Firefox, or Safari.</p>
+<p>For the libraries we use, the tests we run, and a step-by-step Network tab check, read <a href="/how-we-test/">How we test</a>.</p>
